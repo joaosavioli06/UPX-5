@@ -22,4 +22,4 @@ app.use('/itens', itemRoutes);
 
 // Exporta a API para o Firebase Functions
 // O nome 'api' será parte da sua URL final (ex: .../api/auth/register)
-exports.api = functions.region('southamerica-east1').https.onRequest(app);
+exports.api = functions.https.onRequest(app);
