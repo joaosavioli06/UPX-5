@@ -1,6 +1,8 @@
+![Logo do Git](/frontend/img/icone_token_flow_completo.png)  
+
 # Usina de Projetos Experimentais 5 - Grupo ODSCoders
 
-Neste repositório você encontrará o projeto do 5º semestre da disciplina de UPX - 4 (Usina de Projetos Experimentais 5) do grupo ODSCoders da turma A de Análise e Desenvolvimento de Sistemas EAD do Centro Universitário Facens.
+Neste repositório você encontrará o projeto do 5º semestre da disciplina de UPX - 5 (Usina de Projetos Experimentais 5) do grupo ODSCoders da turma A de Análise e Desenvolvimento de Sistemas EAD do Centro Universitário Facens.
 
 ### Integrantes
 
@@ -24,6 +26,27 @@ O projeto visa resolver a desorganização e o descarte irregular de itens grand
 ### Tecnologias Utilizadas
 
 * **Frontend:** 
-* **Backend:** Node.js / Arquitetura Web (APIs e gerenciamento de dados).
-* **Banco de Dados:** 
-* **API de Mapas:** 
+* **Backend:** Node.js, Express
+* **Banco de Dados:** Firebase (Firebase Datastore)
+* **API de IA:** 
+
+### 1. 📁 Estrutura do Repositório
+
+O repositório está organizado para o deploy unificado (Frontend e Backend) no Firebase:
+
+| Pasta/Arquivo | Conteúdo | Objetivo |
+| :--- | :--- | :--- |
+| `frontend/` | Contém todo o código da interface mobile do usuário (Flutter). | Interface Mobile. |
+| `backend/` | Código Node.js do backend, rodando no Firebase Cloud Functions. | Lógica de segurança e acesso ao banco de dados. |
+
+---
+
+### Mentorias Presenciais
+
+Para o 5º semestre, foram definidos dias para mentorias presenciais. O grupo cumpriu com esta exigência, participando em todas as mentorias, nos seguintes dias:
+
+| Data | Mentoria | Participantes |
+| :--- | :--- | :--- |
+| `22/04/2026` | 1ª mentoria | Lívia & Luiz Fernando  |
+
+
