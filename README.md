@@ -36,8 +36,9 @@ O repositório está organizado para o deploy unificado (Frontend e Backend) no 
 
 | Pasta/Arquivo | Conteúdo | Objetivo |
 | :--- | :--- | :--- |
-| `mobile/` | Contém todo o código da interface mobile do usuário (Flutter). | Interface Mobile. |
+| `mobile/` | Contém todo o código da interface mobile do usuário (React/JS). | Interface Mobile. |
 | `backend/` | Código Node.js do backend, rodando no Firebase Cloud Functions. | Lógica de segurança e acesso ao banco de dados. |
+ `DOCS/` | Arquivos de trabalhos utilizados durante o 5º semestre para a disciplina de UPX 5  | Deixar público os arquivos para consulta geral |
 
 ---
 
