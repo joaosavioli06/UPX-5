@@ -1,4 +1,4 @@
-![Logo do Git](/frontend/img/icone_token_flow_completo.png)  
+![Logo do Git](/mobile/assets/images/icone_token_flow_completo.png)  
 
 # Usina de Projetos Experimentais 5 - Grupo ODSCoders
 
@@ -25,7 +25,7 @@ O projeto visa resolver a desorganização e o descarte irregular de itens grand
 
 ### Tecnologias Utilizadas
 
-* **Frontend:** 
+* **Mobile:** React Native, Expo Go 
 * **Backend:** Node.js, Express
 * **Banco de Dados:** Firebase (Firebase Datastore)
 * **API de IA:** 
@@ -36,7 +36,7 @@ O repositório está organizado para o deploy unificado (Frontend e Backend) no 
 
 | Pasta/Arquivo | Conteúdo | Objetivo |
 | :--- | :--- | :--- |
-| `frontend/` | Contém todo o código da interface mobile do usuário (Flutter). | Interface Mobile. |
+| `mobile/` | Contém todo o código da interface mobile do usuário (Flutter). | Interface Mobile. |
 | `backend/` | Código Node.js do backend, rodando no Firebase Cloud Functions. | Lógica de segurança e acesso ao banco de dados. |
 
 ---
