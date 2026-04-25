@@ -1,15 +1,13 @@
 const admin = require('firebase-admin');
 const { v4: uuidv4 } = require('uuid'); // Você precisará instalar: npm install uuid
 
-/**
- * Service para gestão dos itens de descarte e geração de tokens.
- */
+
 const registrarDescarte = async (uidUsuario, dadosItem) => {
   const db = admin.firestore();
-  const batch = db.batch(); // Usamos Batch para garantir que tudo ocorra ou nada ocorra
+  const batch = db.batch(); 
 
   try {
-    // 1. Gerar o Token Único do QR Code (UUID v4 é padrão de mercado)
+    // 1. Gerar o Token Único do QR Code
     const tokenUUID = uuidv4();
     const itemID = db.collection('itens_descarte').doc().id;
 
@@ -29,7 +27,7 @@ const registrarDescarte = async (uidUsuario, dadosItem) => {
 
     batch.set(itemRef, novoItem);
 
-    // 2. Opcional: Criar um log de auditoria (Cibersegurança)
+    // Criar um log de auditoria
     const logRef = db.collection('logs_auditoria').doc();
     batch.set(logRef, {
       acao: 'CRIAÇÃO_ITEM_DESCARTE',

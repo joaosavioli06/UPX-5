@@ -1,4 +1,4 @@
-![Logo do Git](/mobile/assets/images/icone_token_flow_completo.png)  
+![Logo do Projeto](/mobile/assets/images/icone_token_flow_completo.png)  
 
 # Usina de Projetos Experimentais 5 - Grupo ODSCoders
 
