@@ -1,4 +1,5 @@
 const authService = require('../services/authService');
+const { sendSuccess, sendError } = require('../utils/responseHandler'); // Utils
 
 const register = async (req, res) => {
   try {
@@ -42,7 +43,4 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { 
-  registrar: require('./authController').registrar, // mantenha sua função de registro
-  login 
-};
+module.exports = {register, login};

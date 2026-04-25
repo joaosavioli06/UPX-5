@@ -49,4 +49,30 @@ const cadastrarUsuario = async (nome, email, password, tipo_perfil) => {
   }
 };
 
-module.exports = { cadastrarUsuario };
+const loginUsuario = async (email, password) => {
+  try {
+    // No ambiente local/node, o Firebase Admin não faz login com senha direto.
+    // Para a AC2, simulamos a validação ou usamos o Identity Platform.
+    // Mas a forma mais robusta é buscar o usuário e validar o status:
+    
+    const userRecord = await admin.auth().getUserByEmail(email);
+    const userDoc = await admin.firestore().collection('usuarios').doc(userRecord.uid).get();
+    
+    if (!userDoc.exists || userDoc.data().status !== 'ativo') {
+      throw new Error('Usuário inativo ou não encontrado.');
+    }
+
+    // Gerar um token customizado para o Mobile
+    const customToken = await admin.auth().createCustomToken(userRecord.uid);
+
+    return {
+      token: customToken,
+      usuario: userDoc.data()
+    };
+  } catch (error) {
+    console.error(`[AuthService] Erro no login: ${error.message}`);
+    throw error;
+  }
+};
+
+module.exports = { cadastrarUsuario, loginUsuario };
