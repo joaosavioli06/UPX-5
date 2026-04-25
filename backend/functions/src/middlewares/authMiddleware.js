@@ -1,36 +1,37 @@
 const admin = require('firebase-admin');
 
 /**
- * Middleware para validar o token do Firebase e verificar o cargo (role).
- * Garante que apenas usuários autenticados e autorizados acessem a rota.
+ * Verifica se o Token enviado pelo Mobile é válido
  */
-const validateRole = (rolesPermitidos) => {
-  return async (req, res, next) => {
-    const authHeader = req.headers.authorization;
+const validateToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Token não fornecido ou inválido.' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Token não fornecido ou inválido.' });
+  }
+
+  const idToken = authHeader.split('Bearer ')[1];
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    req.user = decodedToken; // Injeta os dados do usuário na requisição
+    next();
+  } catch (error) {
+    console.error('Erro ao verificar token:', error);
+    return res.status(403).json({ error: 'Token expirado ou não autorizado.' });
+  }
+};
+
+/**
+ * Verifica se o usuário tem o perfil necessário (RBAC)
+ */
+const validateRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Acesso negado: Perfil insuficiente.' });
     }
-
-    const idToken = authHeader.split('Bearer ')[1];
-
-    try {
-      // Verifica se o token é válido e decodifica as Custom Claims
-      const decodedToken = await admin.auth().verifyIdToken(idToken);
-      
-      // Verifica se o cargo do usuário está na lista de permissões da rota
-      if (!rolesPermitidos.includes(decodedToken.role)) {
-        return res.status(403).json({ error: 'Acesso negado: Perfil insuficiente.' });
-      }
-
-      // Adiciona os dados do usuário na requisição para uso posterior
-      req.user = decodedToken;
-      next();
-    } catch (error) {
-      console.error('Erro ao validar token:', error);
-      return res.status(401).json({ error: 'Token expirado ou inválido.' });
-    }
+    next();
   };
 };
 
-module.exports = { validateRole };
+module.exports = { validateToken, validateRole };

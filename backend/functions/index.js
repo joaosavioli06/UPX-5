@@ -3,23 +3,24 @@ const admin = require('firebase-admin');
 const express = require('express');
 const cors = require('cors');
 
-// Inicializa o Firebase Admin com privilégios totais
+// Inicialização
 admin.initializeApp();
-
 const app = express();
-
-// Middlewares Globais
-app.use(cors({ origin: true })); // Permite que o app da Lívia acesse a API
+app.use(cors({ origin: true }));
 app.use(express.json());
 
 // Importação das Rotas
 const authRoutes = require('./src/routes/authRoutes');
 const itemRoutes = require('./src/routes/itemRoutes');
+const adminRoutes = require('./src/routes/adminRoutes');
+const globalErrorHandler = require('./src/middlewares/errorMiddleware');
 
-// Definição dos prefixos das rotas
-app.use('/auth', authRoutes);
-app.use('/itens', itemRoutes);
+// Definição dos Endpoints
+app.use('/api/auth', authRoutes);
+app.use('/api/itens', itemRoutes);
+app.use('/api/admin', adminRoutes);
 
-// Exporta a API para o Firebase Functions
-// O nome 'api' será parte da sua URL final (ex: .../api/auth/register)
+// Middleware de Erro (DEVE ser o último)
+app.use(globalErrorHandler);
+
 exports.api = functions.https.onRequest(app);
