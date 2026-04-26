@@ -1,11 +1,14 @@
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function Login() {
+    const router = useRouter();
+
     return (
         <View style={styles.container}>
             <View style={styles.card}>
                 <Image
-                    source={require('../assets/images/icone_QR_token_flow.png')}
+                    source={require('../../assets/images/icone_QR_token_flow.png')}
                     style={styles.logo}
                 />
 
@@ -20,7 +23,10 @@ export default function Login() {
                 </TouchableOpacity>
 
 
-                <TouchableOpacity style={styles.secondaryButton}>
+                <TouchableOpacity
+                    onPress={() => router.push('/register')}
+                    style={styles.secondaryButton}
+                >
                     <Text style={styles.secondaryText}>Criar conta</Text>
                 </TouchableOpacity>
 

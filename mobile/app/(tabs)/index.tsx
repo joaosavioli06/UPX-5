@@ -24,6 +24,10 @@ export default function HomeScreen() {
         <Link href={"/login"}>
           <ThemedText type="link">Login</ThemedText>
         </Link>
+
+        <Link href={"/register"}>
+        <ThemedText type="link">Register</ThemedText>
+        </Link>
         
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
