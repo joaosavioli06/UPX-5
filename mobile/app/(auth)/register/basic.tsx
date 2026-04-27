@@ -1,59 +1,49 @@
 import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import ProgressBar from "@/components/progressBar";
 import { Stack, useRouter } from "expo-router";
 
-export default function Register() {
+export default function Basic() {
     const router = useRouter();
 
     return (
         <>
             <Stack.Screen
                 options={{
-                    title: 'Criar conta',
+                    title: 'Cadastro',
                     headerBackTitle: 'Voltar',
                 }}
             />
-
             <View style={styles.container}>
                 <View style={styles.card}>
+                    <ProgressBar step={1} total={4} />
 
-                    <Text style={styles.title}>Crie sua conta</Text>
-                    <Text style={styles.subtitle}>Preencha os dados abaixo para começar</Text>
+                    <Text style={styles.title}>Dados básicos</Text>
+                    <Text style={styles.subTitle}>Precisamos de algumas informações para identificá-lo</Text>
 
-                    <Text style={styles.label}>Nome completo</Text>
+                    <Text style={styles.label}>CPF</Text>
                     <TextInput
-                        placeholder="João da Silva"
+                        placeholder="000.000.000-00"
                         style={styles.input}
                     />
 
-                    <Text style={styles.label}>E-mail</Text>
+                    <Text style={styles.label}>Telefone/Celular</Text>
                     <TextInput
-                        placeholder="seu@email.com"
+                        placeholder="(00) 00000-0000"
                         style={styles.input}
                     />
-                    <Text style={styles.info}>
-                        Usaremos este e-mail para comunicações importantes
-                    </Text>
-
-                    <Text style={styles.label}>Senha</Text>
-                    <TextInput
-                        placeholder="Mínimo 8 caracteres"
-                        style={styles.input}
-                    />
-                    <Text style={styles.info}>Mínimo de 8 caracteres</Text>
+                    <Text style={styles.info}>Para contato em caso de emergência</Text>
 
                     <TouchableOpacity
-                        style={styles.buttonCreate}
-                        onPress={() => router.push('/register/basic')}>
+                        style={styles.buttonContinue}
+                        onPress={() => router.push('/register/unit')}
+                    >
                         <Text style={styles.buttonText}>
-                            Criar conta
+                            Continuar
                         </Text>
                     </TouchableOpacity>
-
-                    <Text style={styles.enter}>
-                        Já tem uma conta? <Text onPress={() => router.push('/login')} style={styles.link}>Entrar</Text>.
-                    </Text>
                 </View>
             </View>
+
         </>
     );
 }
@@ -76,8 +66,9 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
+        marginTop: 32,
     },
-    subtitle: {
+    subTitle: {
         fontSize: 16,
         color: '#4A5565',
         marginBottom: 20,
@@ -102,25 +93,15 @@ const styles = StyleSheet.create({
         color: '#6A7282',
         marginBottom: 10,
     },
-    buttonCreate: {
-        backgroundColor: '#16a34a',
+    buttonContinue: {
+        backgroundColor: '#00A63E',
         padding: 15,
-        borderRadius: 12,
-        marginTop: 24,
+        borderRadius: 14,
+        marginTop: 87,
     },
     buttonText: {
         color: '#FFFFFF',
         textAlign: 'center',
         fontWeight: 'medium',
     },
-    enter: {
-        textAlign: 'center',
-        marginTop: 14,
-        color: '#4A5565',
-    },
-    link: {
-        fontSize: 16,
-        color: '#00A63E',
-        fontWeight: 'medium',
-    },
-});
+});    
