@@ -1,51 +1,54 @@
 const admin = require('firebase-admin');
 const { FieldValue } = require('firebase-admin/firestore');
 
-const cadastrarUsuario = async (nome, email, password, tipo_perfil) => {
+const cadastrarUsuario = async (nome, email, password, tipo_perfil, codigoAcesso) => {
   let userRecord;
+  let isAdmin = false; // Padrão é sempre falso
 
   try {
-    // Validação de Segurança: 'morador' ou 'sindico'
-    const perfisValidos = ['morador', 'sindico'];
-    if (!perfisValidos.includes(tipo_perfil)) {
-      throw new Error('Perfil de usuário inválido.');
-    }
+    // 1. Validar código de acesso se o perfil solicitado for 'sindico'
+    if (tipo_perfil === 'sindico') {
+      
+  const configDoc = await admin.firestore().collection('config').doc('acesso_sindico').get();
+  
+  if (!configDoc.exists) {
+    throw new Error('Configuração de acesso não encontrada no banco.');
+  }
 
-    userRecord = await admin.auth().createUser({
+  // Ajustado para .code conforme seu print
+  const codigoCorreto = configDoc.data().code;
+
+  if (codigoAcesso === codigoCorreto) {
+    isAdmin = true;
+  } else {
+    throw new Error('Código de acesso para síndico inválido.');
+  }
+}
+
+    // 2. Criar usuário no Firebase Auth
+    userRecord = await admin.auth().createUser({ email, password, displayName: nome });
+
+    // 3. Salvar no Firestore com o resultado da validação
+    await admin.firestore().collection('usuarios').doc(userRecord.uid).set({
+      uid: userRecord.uid,
+      nome,
       email,
-      password,
-      displayName: nome,
+      tipo_perfil,
+      is_admin: isAdmin, // Aqui entra o true ou false validado
+      status: 'ativo',
+      criado_em: FieldValue.serverTimestamp()
     });
 
-    try {
-      const userDocRef = admin.firestore().collection('usuarios').doc(userRecord.uid);
+    // 4. Definir Claims de segurança
+    await admin.auth().setCustomUserClaims(userRecord.uid, { 
+      role: tipo_perfil,
+      admin: isAdmin 
+    });
 
-      await userDocRef.set({
-        uid: userRecord.uid,
-        nome,
-        email,
-        tipo_perfil,
-        is_admin: false, // FORÇADO: Todo usuário nasce como falso.
-        status: 'ativo',
-        criado_em: FieldValue.serverTimestamp(),
-        atualizado_em: FieldValue.serverTimestamp(),
-      });
-
-      await admin.auth().setCustomUserClaims(userRecord.uid, { 
-        role: tipo_perfil,
-        admin: false 
-      });
-
-      return { uid: userRecord.uid, email: userRecord.email };
-
-    } catch (firestoreError) {
-      if (userRecord) await admin.auth().deleteUser(userRecord.uid);
-      throw firestoreError;
-    }
-
+    return { uid: userRecord.uid, email: userRecord.email };
   } catch (error) {
-    console.error(`[AuthService] Erro no cadastro: ${error.message}`);
-    throw error; 
+    if (userRecord) await admin.auth().deleteUser(userRecord.uid);
+    throw error;
   }
 };
 
