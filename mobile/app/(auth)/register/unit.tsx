@@ -49,7 +49,7 @@ export default function Unit() {
 
                         <TouchableOpacity
                             style={styles.buttonContinue}
-                            onPress={() => router.push('/register/basic')} // alterar rota para proxima pag
+                            onPress={() => router.push('/register/vehicle')}
                         >
                             <Text style={styles.textContinue}>Continuar</Text>
                         </TouchableOpacity>
