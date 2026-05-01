@@ -1,9 +1,25 @@
 import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import { useState } from "react";
 import ProgressBar from "@/components/progressBar";
 import { Stack, useRouter } from "expo-router";
+import { useRegister } from "@/contexts/RegisterContext";
 
 export default function Unit() {
     const router = useRouter();
+    const { setData } = useRegister();
+
+    const [block, setBlock] = useState('');
+    const [unitNumber, setUnitNumber] = useState('');
+    const [type, setType] = useState('');
+
+    function handleContinue() {
+        setData({
+            unit: block ? `Bloco ${block} - ${unitNumber}` : unitNumber,
+            type: type
+        });
+
+        router.push('/register/vehicle');
+    }
 
     return (
         <>
@@ -25,31 +41,37 @@ export default function Unit() {
                     <TextInput
                         placeholder="Ex: A, B, C..."
                         style={styles.input}
+                        value={block}
+                        onChangeText={setBlock}
                     />
 
                     <Text style={styles.label}>Número da unidade</Text>
                     <TextInput
                         placeholder="Ex: 101, 202, Casa 5..."
                         style={styles.input}
+                        value={unitNumber}
+                        onChangeText={setUnitNumber}
                     />
 
                     <Text style={styles.label}>Tipo de moradia</Text>
                     <TextInput
                         placeholder="Casa, apartamento..."
                         style={styles.input}
+                        value={type}
+                        onChangeText={setType}
                     />
 
                     <View style={styles.buttons}>
                         <TouchableOpacity
                             style={styles.buttonBack}
-                            onPress={() => router.push('/register/basic')}
+                            onPress={() => router.back()}
                         >
                             <Text style={styles.textBack}>Voltar</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             style={styles.buttonContinue}
-                            onPress={() => router.push('/register/vehicle')}
+                            onPress={handleContinue}
                         >
                             <Text style={styles.textContinue}>Continuar</Text>
                         </TouchableOpacity>

@@ -85,7 +85,7 @@ export default function Vehicle() {
 
                         <TouchableOpacity
                             style={styles.buttonContinue}
-                            onPress={() => router.push('/register/basic')}
+                            onPress={() => router.push('/register/preference')}
                         >
                             <Text style={styles.textContinue}>Continuar</Text>
                         </TouchableOpacity>
