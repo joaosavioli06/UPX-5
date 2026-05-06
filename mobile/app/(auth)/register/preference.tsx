@@ -1,12 +1,44 @@
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform, Alert } from "react-native"; // Adicionei Alert aqui
 import { useState } from "react";
 import ProgressBar from "@/components/progressBar";
 import { useRouter } from "expo-router";
+import { useRegister } from "@/contexts/RegisterContext"; // Importação correta[cite: 2]
 
 export default function Preference() {
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false); // Estado de carregamento adicionado
 
     const router = useRouter();
+    const { data } = useRegister(); // Acesso aos dados do contexto[cite: 2]
+
+    // Função para enviar os dados ao seu Backend no Firebase
+    async function handleFinalize() {
+        setLoading(true);
+        try {
+            // Lembre-se de substituir pela sua URL real após o deploy
+            const response = await fetch('https://SUA_URL_AQUI.cloudfunctions.net/cadastrarUsuario', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    ...data, 
+                    preferencias: selectedOptions 
+                }), 
+            });
+
+            if (!response.ok) throw new Error('Erro no servidor');
+            const result = await response.json();
+
+            // Navega para a confirmação com os dados oficiais do banco[cite: 4]
+            router.push({
+                pathname: '/register/confirm',
+                params: { unit: result.unit, type: result.type }
+            });
+        } catch (error) {
+            Alert.alert("Erro", "Não foi possível salvar os dados no servidor.");
+        } finally {
+            setLoading(false);
+        }
+    } // Fechamento correto da função handleFinalize
 
     function toggleOption(option: string) {
         if (selectedOptions.includes(option)) {
@@ -22,7 +54,6 @@ export default function Preference() {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
             <View style={styles.container}>
-
                 <ScrollView
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
@@ -32,7 +63,6 @@ export default function Preference() {
                         <TouchableOpacity onPress={() => router.back()}>
                             <Text style={styles.backArrow}>←</Text>
                         </TouchableOpacity>
-
                         <Text style={styles.headerTitle}>Cadastro</Text>
                         <View style={styles.side} />
                     </View>
@@ -44,82 +74,38 @@ export default function Preference() {
                         Como você prefere receber informações?
                     </Text>
 
-                    <TouchableOpacity
-                        style={styles.checkboxContainer}
-                        onPress={() => toggleOption('whatsapp')}
-                    >
-                        <View style={[
-                            styles.checkbox,
-                            selectedOptions.includes('whatsapp') && styles.checkboxSelected
-                        ]}>
-                            {selectedOptions.includes('whatsapp') && (
-                                <Text style={styles.checkmark}>✓</Text>
-                            )}
+                    {/* Checkboxes de Preferências */}
+                    <TouchableOpacity style={styles.checkboxContainer} onPress={() => toggleOption('whatsapp')}>
+                        <View style={[styles.checkbox, selectedOptions.includes('whatsapp') && styles.checkboxSelected]}>
+                            {selectedOptions.includes('whatsapp') && <Text style={styles.checkmark}>✓</Text>}
                         </View>
-
-                        <Text style={styles.checkboxText}>
-                            Receber avisos por WhatsApp
-                        </Text>
+                        <Text style={styles.checkboxText}>Receber avisos por WhatsApp</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.checkboxContainer}
-                        onPress={() => toggleOption('email')}
-                    >
-                        <View style={[
-                            styles.checkbox,
-                            selectedOptions.includes('email') && styles.checkboxSelected
-                        ]}>
-                            {selectedOptions.includes('email') && (
-                                <Text style={styles.checkmark}>✓</Text>
-                            )}
+                    <TouchableOpacity style={styles.checkboxContainer} onPress={() => toggleOption('email')}>
+                        <View style={[styles.checkbox, selectedOptions.includes('email') && styles.checkboxSelected]}>
+                            {selectedOptions.includes('email') && <Text style={styles.checkmark}>✓</Text>}
                         </View>
-
-                        <Text style={styles.checkboxText}>
-                            Receber avisos por e-mail
-                        </Text>
+                        <Text style={styles.checkboxText}>Receber avisos por e-mail</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.checkboxContainer}
-                        onPress={() => toggleOption('condominio')}
-                    >
-                        <View style={[
-                            styles.checkbox,
-                            selectedOptions.includes('condominio') && styles.checkboxSelected
-                        ]}>
-                            {selectedOptions.includes('condominio') && (
-                                <Text style={styles.checkmark}>✓</Text>
-                            )}
+                    <TouchableOpacity style={styles.checkboxContainer} onPress={() => toggleOption('condominio')}>
+                        <View style={[styles.checkbox, selectedOptions.includes('condominio') && styles.checkboxSelected]}>
+                            {selectedOptions.includes('condominio') && <Text style={styles.checkmark}>✓</Text>}
                         </View>
-
-                        <Text style={styles.checkboxText}>
-                            Newslatter do condomínio
-                        </Text>
+                        <Text style={styles.checkboxText}>Newsletter do condomínio</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.checkboxContainer}
-                        onPress={() => toggleOption('eventos')}
-                    >
-                        <View style={[
-                            styles.checkbox,
-                            selectedOptions.includes('eventos') && styles.checkboxSelected
-                        ]}>
-                            {selectedOptions.includes('eventos') && (
-                                <Text style={styles.checkmark}>✓</Text>
-                            )}
+                    <TouchableOpacity style={styles.checkboxContainer} onPress={() => toggleOption('eventos')}>
+                        <View style={[styles.checkbox, selectedOptions.includes('eventos') && styles.checkboxSelected]}>
+                            {selectedOptions.includes('eventos') && <Text style={styles.checkmark}>✓</Text>}
                         </View>
-
-                        <Text style={styles.checkboxText}>
-                            Notificaçōes de eventos
-                        </Text>
+                        <Text style={styles.checkboxText}>Notificações de eventos</Text>
                     </TouchableOpacity>
 
-                    <Text style={styles.obsTitle}>Observaçōes (opcional)</Text>
-
+                    <Text style={styles.obsTitle}>Observações (opcional)</Text>
                     <TextInput
-                        placeholder="Alguma informação adicional que gostaria de compartilhar?"
+                        placeholder="Alguma informação adicional?"
                         style={styles.inputObs}
                         multiline
                         numberOfLines={4}
@@ -131,15 +117,19 @@ export default function Preference() {
                     <TouchableOpacity
                         style={styles.buttonBack}
                         onPress={() => router.back()}
+                        disabled={loading}
                     >
                         <Text style={styles.textBack}>Voltar</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={styles.buttonContinue}
-                        onPress={() => router.push('/register/confirm')}
+                        style={[styles.buttonContinue, loading && { opacity: 0.6 }]}
+                        onPress={handleFinalize} // Chama a nova função de envio
+                        disabled={loading} 
                     >
-                        <Text style={styles.textContinue}>Finalizar</Text>
+                        <Text style={styles.textContinue}>
+                             {loading ? "Enviando..." : "Finalizar"} 
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </View>

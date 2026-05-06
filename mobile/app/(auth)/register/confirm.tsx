@@ -1,95 +1,66 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import { useRegister } from "@/contexts/RegisterContext";
+import { useLocalSearchParams, useRouter } from "expo-router"; // Adicionado useLocalSearchParams
 
 export default function Confirm() {
     const router = useRouter();
-    const { data } = useRegister();
+    // Captura os parâmetros que enviamos através do router.push no arquivo anterior
+    const params = useLocalSearchParams(); 
 
     return (
-        <>
-            <View style={styles.container}>
-                <View style={styles.content}>
-                    <View style={styles.iconContainer}>
-                        <Text style={styles.check}>✓</Text>
+        <View style={styles.container}>
+            <View style={styles.content}>
+                <View style={styles.iconContainer}>
+                    <Text style={styles.check}>✓</Text>
+                </View>
+
+                <Text style={styles.title}>Cadastro realizado!</Text>
+                <Text style={styles.subtitle}>
+                    Seu cadastro foi enviado para aprovação do síndico.
+                    Você receberá uma notificação quando for aprovado.
+                </Text>
+
+                <View style={styles.summaryCard}>
+                    <Text style={styles.summaryTitle}>Resumo do cadastro</Text>
+
+                    <View style={styles.row}>
+                        <Text style={styles.label}>Status:</Text>
+                        <Text style={styles.status}>Aguardando aprovação</Text>
                     </View>
 
-                    <Text style={styles.title}>Cadastro realizado!</Text>
-                    <Text style={styles.subtitle}>
-                        Seu cadastro foi enviado para aprovação do síndico.
-                        Você receberá uma notificação quando for aprovado.
-                    </Text>
-
-                    <View style={styles.summaryCard}>
-                        <Text style={styles.summaryTitle}>Resumo do cadastro</Text>
-
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Status:</Text>
-                            <Text style={styles.status}>Aguardando aprovação</Text>
-                        </View>
-
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Unidade:</Text>
-                            <Text style={styles.value}>
-                                {data.unit || '-'}
-                            </Text>
-                        </View>
-
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Tipo:</Text>
-                            <Text style={styles.value}>
-                                {data.type || '-'}
-                            </Text>
-                        </View>
-
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Veículo:</Text>
-                            <Text style={styles.value}>
-                                {data.hasVehicle === true ? 'Sim' : 'Não'}
-                            </Text>
-                        </View>
-
-                        {data.hasVehicle === true && (
-                            <>
-                                <View style={styles.row}>
-                                    <Text style={styles.label}>Placa:</Text>
-                                    <Text style={styles.value}>
-                                        {data.plate || '-'}
-                                    </Text>
-                                </View>
-
-                                <View style={styles.row}>
-                                    <Text style={styles.label}>Modelo:</Text>
-                                    <Text style={styles.value}>
-                                        {data.model || '-'}
-                                    </Text>
-                                </View>
-
-                                <View style={styles.row}>
-                                    <Text style={styles.label}>Cor:</Text>
-                                    <Text style={styles.value}>
-                                        {data.color || '-'}
-                                    </Text>
-                                </View>
-                            </>
-                        )}
-
+                    <View style={styles.row}>
+                        <Text style={styles.label}>Unidade:</Text>
+                        <Text style={styles.value}>
+                            {/* Agora exibe o que veio do Backend */}
+                            {params.unit || '-'} 
+                        </Text>
                     </View>
 
-                    <View style={styles.buttons}>
-                        <TouchableOpacity
-                            onPress={() => router.push('/login')}
-                            style={styles.primaryButton}>
-                            <Text style={styles.primaryText}>Ir para o início</Text>
-                        </TouchableOpacity>
+                    <View style={styles.row}>
+                        <Text style={styles.label}>Tipo:</Text>
+                        <Text style={styles.value}>
+                            {/* Agora exibe o que veio do Backend[cite: 4, 11] */}
+                            {params.type || '-'}
+                        </Text>
+                    </View>
 
-                        <TouchableOpacity>
-                            <Text style={styles.link}>Voltar para login</Text>
-                        </TouchableOpacity>
+                    <View style={styles.row}>
+                        <Text style={styles.label}>Veículo:</Text>
+                        <Text style={styles.value}>
+                            {/* Verifica o parâmetro enviado pelo servidor[cite: 4, 11] */}
+                            {params.hasVehicle === 'true' ? 'Sim' : 'Não'}
+                        </Text>
                     </View>
                 </View>
+
+                <View style={styles.buttons}>
+                    <TouchableOpacity
+                        onPress={() => router.push('/login')}
+                        style={styles.primaryButton}>
+                        <Text style={styles.primaryText}>Ir para o início</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </>
+        </View>
     );
 }
 
