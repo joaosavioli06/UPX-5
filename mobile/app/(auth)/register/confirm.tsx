@@ -9,51 +9,83 @@ export default function Confirm() {
     return (
         <>
             <View style={styles.container}>
-                <View style={styles.card}>
+                <View style={styles.content}>
+                    <View style={styles.iconContainer}>
+                        <Text style={styles.check}>✓</Text>
+                    </View>
 
-                    <View style={styles.content}>
-                        <View style={styles.iconContainer}>
-                            <Text style={styles.check}>✓</Text>
+                    <Text style={styles.title}>Cadastro realizado!</Text>
+                    <Text style={styles.subtitle}>
+                        Seu cadastro foi enviado para aprovação do síndico.
+                        Você receberá uma notificação quando for aprovado.
+                    </Text>
+
+                    <View style={styles.summaryCard}>
+                        <Text style={styles.summaryTitle}>Resumo do cadastro</Text>
+
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Status:</Text>
+                            <Text style={styles.status}>Aguardando aprovação</Text>
                         </View>
 
-                        <Text style={styles.title}>Cadastro realizado!</Text>
-                        <Text style={styles.subtitle}>
-                            Seu cadastro foi enviado para aprovação do síndico.
-                            Você receberá uma notificação quando for aprovado.
-                        </Text>
-
-                        <View style={styles.summaryCard}>
-                            <Text style={styles.summaryTitle}>Resumo do cadastro</Text>
-
-                            <View style={styles.row}>
-                                <Text style={styles.label}>Status:</Text>
-                                <Text style={styles.status}>Aguardando aprovação</Text>
-                            </View>
-
-                            <View style={styles.row}>
-                                <Text style={styles.label}>Unidade:</Text>
-                                <Text style={styles.value}>
-                                    {data.unit || '-'}
-                                </Text>
-                            </View>
-
-                            <View style={styles.row}>
-                                <Text style={styles.label}>Tipo:</Text>
-                                <Text style={styles.value}>
-                                    {data.type || '-'}
-                                </Text>
-                            </View>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Unidade:</Text>
+                            <Text style={styles.value}>
+                                {data.unit || '-'}
+                            </Text>
                         </View>
 
-                        <View style={styles.buttons}>
-                            <TouchableOpacity style={styles.primaryButton}> 
-                                <Text style={styles.primaryText}>Ir para o início</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity onPress={() => router.push('/login')}> {/*Alterar rota para pagina de login*/}
-                                <Text style={styles.link}>Voltar para login</Text>
-                            </TouchableOpacity>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Tipo:</Text>
+                            <Text style={styles.value}>
+                                {data.type || '-'}
+                            </Text>
                         </View>
+
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Veículo:</Text>
+                            <Text style={styles.value}>
+                                {data.hasVehicle === true ? 'Sim' : 'Não'}
+                            </Text>
+                        </View>
+
+                        {data.hasVehicle === true && (
+                            <>
+                                <View style={styles.row}>
+                                    <Text style={styles.label}>Placa:</Text>
+                                    <Text style={styles.value}>
+                                        {data.plate || '-'}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.row}>
+                                    <Text style={styles.label}>Modelo:</Text>
+                                    <Text style={styles.value}>
+                                        {data.model || '-'}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.row}>
+                                    <Text style={styles.label}>Cor:</Text>
+                                    <Text style={styles.value}>
+                                        {data.color || '-'}
+                                    </Text>
+                                </View>
+                            </>
+                        )}
+
+                    </View>
+
+                    <View style={styles.buttons}>
+                        <TouchableOpacity
+                            onPress={() => router.push('/login')}
+                            style={styles.primaryButton}>
+                            <Text style={styles.primaryText}>Ir para o início</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity>
+                            <Text style={styles.link}>Voltar para login</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
@@ -67,16 +99,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#F9FAFB',
         padding: 20,
     },
-    card: {
-        flex: 1,
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 20,
-        justifyContent: 'space-between',
-    },
     content: {
         alignItems: 'center',
-        marginTop: 32,
+        marginTop: '25%',
     },
     iconContainer: {
         width: 90,

@@ -1,16 +1,27 @@
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { useState } from "react";
 import ProgressBar from "@/components/progressBar";
 import { useRouter } from "expo-router";
 
 export default function Preference() {
-    const [checked, setChecked] = useState(false);
+    const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
     const router = useRouter();
 
+    function toggleOption(option: string) {
+        if (selectedOptions.includes(option)) {
+            setSelectedOptions(selectedOptions.filter(item => item !== option));
+        } else {
+            setSelectedOptions([...selectedOptions, option]);
+        }
+    }
+
     return (
-        <View style={styles.container}>
-            <View style={styles.card}>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+            <View style={styles.container}>
 
                 <ScrollView
                     contentContainerStyle={styles.scrollContent}
@@ -35,13 +46,15 @@ export default function Preference() {
 
                     <TouchableOpacity
                         style={styles.checkboxContainer}
-                        onPress={() => setChecked(!checked)}
+                        onPress={() => toggleOption('whatsapp')}
                     >
                         <View style={[
                             styles.checkbox,
-                            checked && styles.checkboxSelected
+                            selectedOptions.includes('whatsapp') && styles.checkboxSelected
                         ]}>
-                            {checked && <Text style={styles.checkmark}>✓</Text>}
+                            {selectedOptions.includes('whatsapp') && (
+                                <Text style={styles.checkmark}>✓</Text>
+                            )}
                         </View>
 
                         <Text style={styles.checkboxText}>
@@ -51,13 +64,15 @@ export default function Preference() {
 
                     <TouchableOpacity
                         style={styles.checkboxContainer}
-                        onPress={() => setChecked(!checked)}
+                        onPress={() => toggleOption('email')}
                     >
                         <View style={[
                             styles.checkbox,
-                            checked && styles.checkboxSelected
+                            selectedOptions.includes('email') && styles.checkboxSelected
                         ]}>
-                            {checked && <Text style={styles.checkmark}>✓</Text>}
+                            {selectedOptions.includes('email') && (
+                                <Text style={styles.checkmark}>✓</Text>
+                            )}
                         </View>
 
                         <Text style={styles.checkboxText}>
@@ -67,13 +82,15 @@ export default function Preference() {
 
                     <TouchableOpacity
                         style={styles.checkboxContainer}
-                        onPress={() => setChecked(!checked)}
+                        onPress={() => toggleOption('condominio')}
                     >
                         <View style={[
                             styles.checkbox,
-                            checked && styles.checkboxSelected
+                            selectedOptions.includes('condominio') && styles.checkboxSelected
                         ]}>
-                            {checked && <Text style={styles.checkmark}>✓</Text>}
+                            {selectedOptions.includes('condominio') && (
+                                <Text style={styles.checkmark}>✓</Text>
+                            )}
                         </View>
 
                         <Text style={styles.checkboxText}>
@@ -83,13 +100,15 @@ export default function Preference() {
 
                     <TouchableOpacity
                         style={styles.checkboxContainer}
-                        onPress={() => setChecked(!checked)}
+                        onPress={() => toggleOption('eventos')}
                     >
                         <View style={[
                             styles.checkbox,
-                            checked && styles.checkboxSelected
+                            selectedOptions.includes('eventos') && styles.checkboxSelected
                         ]}>
-                            {checked && <Text style={styles.checkmark}>✓</Text>}
+                            {selectedOptions.includes('eventos') && (
+                                <Text style={styles.checkmark}>✓</Text>
+                            )}
                         </View>
 
                         <Text style={styles.checkboxText}>
@@ -123,9 +142,8 @@ export default function Preference() {
                         <Text style={styles.textContinue}>Finalizar</Text>
                     </TouchableOpacity>
                 </View>
-
             </View>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -133,12 +151,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F9FAFB',
-        padding: 20,
-    },
-    card: {
-        flex: 1,
-        backgroundColor: '#fff',
-        borderRadius: 16,
         padding: 20,
     },
     scrollContent: {

@@ -6,32 +6,30 @@ export default function Login() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.card}>
-                <Image
-                    source={require('../../assets/images/icone_QR_token_flow.png')}
-                    style={styles.logo}
-                />
+            <Image
+                source={require('../../assets/images/icone_QR_token_flow.png')}
+                style={styles.logo}
+            />
 
-                <Text style={styles.title}>Bem-vindo ao TokenFlow</Text>
+            <Text style={styles.title}>Bem-vindo ao TokenFlow</Text>
 
-                <Text style={styles.subtitle}>
-                    Gerencie sua moradia de forma simples e prática. Tudo em um só lugar.
-                </Text>
+            <Text style={styles.subtitle}>
+                Gerencie sua moradia de forma simples e prática. Tudo em um só lugar.
+            </Text>
 
-                <TouchableOpacity style={styles.primaryButton}>
-                    <Text style={styles.primaryText}>Entrar</Text>
-                </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton}>
+                <Text style={styles.primaryText}>Entrar</Text>
+            </TouchableOpacity>
 
 
-                <TouchableOpacity
-                    onPress={() => router.push('/register')}
-                    style={styles.secondaryButton}
-                >
-                    <Text style={styles.secondaryText}>Criar conta</Text>
-                </TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => router.push('/register')}
+                style={styles.secondaryButton}
+            >
+                <Text style={styles.secondaryText}>Criar conta</Text>
+            </TouchableOpacity>
 
-                <Text style={styles.link}>Acesso para síndicos →</Text>
-            </View>
+            <Text style={styles.link}>Acesso para síndicos →</Text>
         </View>
     );
 }
@@ -42,13 +40,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F9FAFB',
         justifyContent: 'center',
         padding: 20,
-    },
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 20,
-        alignItems: 'center',
-        elevation: 5,
+        alignItems: 'center'
     },
     logo: {
         width: 130,

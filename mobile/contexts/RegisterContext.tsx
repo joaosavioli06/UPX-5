@@ -3,6 +3,10 @@ import { createContext, useContext, useState } from "react";
 type RegisterData = {
   unit?: string;
   type?: string;
+  hasVehicle?: boolean;
+  plate?: string;
+  model?: string;
+  color?: string;
 };
 
 type RegisterContextType = {

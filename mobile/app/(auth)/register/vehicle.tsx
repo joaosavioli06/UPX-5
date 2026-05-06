@@ -1,17 +1,46 @@
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
 import { useState } from "react";
 import ProgressBar from "@/components/progressBar";
 import { useRouter } from "expo-router";
+import { useRegister } from "@/contexts/RegisterContext";
 
 export default function Vehicle() {
+    const { setData } = useRegister();
+
     const [hasVehicle, setHasVehicle] = useState<null | boolean>(null);
+    const [plate, setPlate] = useState('');
+    const [model, setModel] = useState('');
+    const [color, setColor] = useState('');
+
     const router = useRouter();
+
+    function handleContinue() {
+        if (hasVehicle === false) {
+            setData({
+                hasVehicle: false,
+                plate: '',
+                model: '',
+                color: '',
+            });
+        } else {
+            setData({
+                hasVehicle: true,
+                plate,
+                model,
+                color,
+            });
+        }
+
+        router.push('/register/preference');
+    }
 
     return (
         <>
-            <View style={styles.container}>
-                <View style={styles.card}>
-
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+                <View style={styles.container}>
                     <View style={styles.content}>
                         <View style={styles.header}>
                             <TouchableOpacity onPress={() => router.back()}>
@@ -64,13 +93,28 @@ export default function Vehicle() {
                         {hasVehicle && (
                             <>
                                 <Text style={styles.label}>Placa</Text>
-                                <TextInput placeholder="ABC1D23" style={styles.input} />
+                                <TextInput
+                                    placeholder="ABC1D23"
+                                    style={styles.input}
+                                    value={plate}
+                                    onChangeText={setPlate}
+                                />
 
                                 <Text style={styles.label}>Modelo</Text>
-                                <TextInput placeholder="Ex: Honda Civic" style={styles.input} />
+                                <TextInput
+                                    placeholder="Ex: Honda Civic"
+                                    style={styles.input}
+                                    value={model}
+                                    onChangeText={setModel}
+                                />
 
                                 <Text style={styles.label}>Cor</Text>
-                                <TextInput placeholder="Ex: Prata" style={styles.input} />
+                                <TextInput
+                                    placeholder="Ex: Prata"
+                                    style={styles.input}
+                                    value={color}
+                                    onChangeText={setColor}
+                                />
                             </>
                         )}
                     </View>
@@ -85,30 +129,23 @@ export default function Vehicle() {
 
                         <TouchableOpacity
                             style={styles.buttonContinue}
-                            onPress={() => router.push('/register/preference')}
+                            onPress={handleContinue}
                         >
                             <Text style={styles.textContinue}>Continuar</Text>
                         </TouchableOpacity>
                     </View>
-
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         </>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F9FAFB',
         padding: 20,
-    },
-    card: {
-        flex: 1,
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 20,
-        elevation: 5,
     },
     content: {
         flex: 1,

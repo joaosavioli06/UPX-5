@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
 import { useState } from "react";
 import ProgressBar from "@/components/progressBar";
 import { Stack, useRouter } from "expo-router";
@@ -23,61 +23,68 @@ export default function Unit() {
 
     return (
         <>
-            <Stack.Screen
-                options={{
-                    title: 'Cadastro',
-                    headerBackTitle: 'Voltar',
-                }}
-            />
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+                <View style={styles.container}>
+                    <View style={styles.content}>
+                        <View style={styles.header}>
+                            <TouchableOpacity onPress={() => router.back()}>
+                                <Text style={styles.backArrow}>←</Text>
+                            </TouchableOpacity>
 
-            <View style={styles.container}>
-                <View style={styles.card}>
-                    <ProgressBar step={2} total={4} />
+                            <Text style={styles.headerTitle}>Cadastro</Text>
+                            <View style={styles.side} />
+                        </View>
+                        
+                        <ProgressBar step={2} total={4} />
 
-                    <Text style={styles.title}>Sua unidade</Text>
-                    <Text style={styles.subTitle}>Informe os dados da sua moradia no condomínio</Text>
+                        <Text style={styles.title}>Sua unidade</Text>
+                        <Text style={styles.subTitle}>Informe os dados da sua moradia no condomínio</Text>
 
-                    <Text style={styles.label}>Bloco (opcional)</Text>
-                    <TextInput
-                        placeholder="Ex: A, B, C..."
-                        style={styles.input}
-                        value={block}
-                        onChangeText={setBlock}
-                    />
+                        <Text style={styles.label}>Bloco (opcional)</Text>
+                        <TextInput
+                            placeholder="Ex: A, B, C..."
+                            style={styles.input}
+                            value={block}
+                            onChangeText={setBlock}
+                        />
 
-                    <Text style={styles.label}>Número da unidade</Text>
-                    <TextInput
-                        placeholder="Ex: 101, 202, Casa 5..."
-                        style={styles.input}
-                        value={unitNumber}
-                        onChangeText={setUnitNumber}
-                    />
+                        <Text style={styles.label}>Número da unidade</Text>
+                        <TextInput
+                            placeholder="Ex: 101, 202, Casa 5..."
+                            style={styles.input}
+                            value={unitNumber}
+                            onChangeText={setUnitNumber}
+                        />
 
-                    <Text style={styles.label}>Tipo de moradia</Text>
-                    <TextInput
-                        placeholder="Casa, apartamento..."
-                        style={styles.input}
-                        value={type}
-                        onChangeText={setType}
-                    />
+                        <Text style={styles.label}>Tipo de moradia</Text>
+                        <TextInput
+                            placeholder="Casa, apartamento..."
+                            style={styles.input}
+                            value={type}
+                            onChangeText={setType}
+                        />
 
-                    <View style={styles.buttons}>
-                        <TouchableOpacity
-                            style={styles.buttonBack}
-                            onPress={() => router.back()}
-                        >
-                            <Text style={styles.textBack}>Voltar</Text>
-                        </TouchableOpacity>
+                        <View style={styles.buttons}>
+                            <TouchableOpacity
+                                style={styles.buttonBack}
+                                onPress={() => router.back()}
+                            >
+                                <Text style={styles.textBack}>Voltar</Text>
+                            </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={styles.buttonContinue}
-                            onPress={handleContinue}
-                        >
-                            <Text style={styles.textContinue}>Continuar</Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.buttonContinue}
+                                onPress={handleContinue}
+                            >
+                                <Text style={styles.textContinue}>Continuar</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         </>
     );
 }
@@ -89,12 +96,29 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 20,
     },
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 20,
-        // alignItems: 'center',
-        elevation: 5,
+    content: {
+        flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E5E7EB',
+        paddingBottom: 10,
+        marginBottom: 16,
+    },
+    side: {
+        width: 40,
+        alignItems: 'center',
+    },
+    backArrow: {
+        fontSize: 20,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        justifyContent: 'center',
     },
     title: {
         fontSize: 24,

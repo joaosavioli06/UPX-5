@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
 import { Stack, useRouter } from "expo-router";
 
 export default function Register() {
@@ -6,54 +6,60 @@ export default function Register() {
 
     return (
         <>
-            <Stack.Screen
-                options={{
-                    title: 'Criar conta',
-                    headerBackTitle: 'Voltar',
-                }}
-            />
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+                <View style={styles.container}>
+                    <View style={styles.content}>
+                        <View style={styles.header}>
+                            <TouchableOpacity onPress={() => router.back()}>
+                                <Text style={styles.backArrow}>←</Text>
+                            </TouchableOpacity>
 
-            <View style={styles.container}>
-                <View style={styles.card}>
+                            <Text style={styles.headerTitle}>Cadastro</Text>
+                            <View style={styles.side} />
+                        </View>
+                        
+                        <Text style={styles.title}>Crie sua conta</Text>
+                        <Text style={styles.subtitle}>Preencha os dados abaixo para começar</Text>
 
-                    <Text style={styles.title}>Crie sua conta</Text>
-                    <Text style={styles.subtitle}>Preencha os dados abaixo para começar</Text>
+                        <Text style={styles.label}>Nome completo</Text>
+                        <TextInput
+                            placeholder="João da Silva"
+                            style={styles.input}
+                        />
 
-                    <Text style={styles.label}>Nome completo</Text>
-                    <TextInput
-                        placeholder="João da Silva"
-                        style={styles.input}
-                    />
-
-                    <Text style={styles.label}>E-mail</Text>
-                    <TextInput
-                        placeholder="seu@email.com"
-                        style={styles.input}
-                    />
-                    <Text style={styles.info}>
-                        Usaremos este e-mail para comunicações importantes
-                    </Text>
-
-                    <Text style={styles.label}>Senha</Text>
-                    <TextInput
-                        placeholder="Mínimo 8 caracteres"
-                        style={styles.input}
-                    />
-                    <Text style={styles.info}>Mínimo de 8 caracteres</Text>
-
-                    <TouchableOpacity
-                        style={styles.buttonCreate}
-                        onPress={() => router.push('/register/basic')}>
-                        <Text style={styles.buttonText}>
-                            Criar conta
+                        <Text style={styles.label}>E-mail</Text>
+                        <TextInput
+                            placeholder="seu@email.com"
+                            style={styles.input}
+                        />
+                        <Text style={styles.info}>
+                            Usaremos este e-mail para comunicações importantes
                         </Text>
-                    </TouchableOpacity>
 
-                    <Text style={styles.enter}>
-                        Já tem uma conta? <Text onPress={() => router.push('/login')} style={styles.link}>Entrar</Text>.
-                    </Text>
+                        <Text style={styles.label}>Senha</Text>
+                        <TextInput
+                            placeholder="Mínimo 8 caracteres"
+                            style={styles.input}
+                        />
+                        <Text style={styles.info}>Mínimo de 8 caracteres</Text>
+
+                        <TouchableOpacity
+                            style={styles.buttonCreate}
+                            onPress={() => router.push('/register/basic')}>
+                            <Text style={styles.buttonText}>
+                                Criar conta
+                            </Text>
+                        </TouchableOpacity>
+
+                        <Text style={styles.enter}>
+                            Já tem uma conta? <Text onPress={() => router.push('/login')} style={styles.link}>Entrar</Text>.
+                        </Text>
+                    </View>
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         </>
     );
 }
@@ -65,17 +71,35 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 20,
     },
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 20,
-        // alignItems: 'center',
-        elevation: 5,
+    content: {
+        flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E5E7EB',
+        paddingBottom: 10,
+        marginBottom: 16,
+    },
+    side: {
+        width: 40,
+        alignItems: 'center',
+    },
+    backArrow: {
+        fontSize: 20,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        justifyContent: 'center',
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
+        marginTop: 24,
     },
     subtitle: {
         fontSize: 16,

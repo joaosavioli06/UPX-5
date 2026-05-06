@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
 import ProgressBar from "@/components/progressBar";
 import { Stack, useRouter } from "expo-router";
 
@@ -7,43 +7,50 @@ export default function Basic() {
 
     return (
         <>
-            <Stack.Screen
-                options={{
-                    title: 'Cadastro',
-                    headerBackTitle: 'Voltar',
-                }}
-            />
-            <View style={styles.container}>
-                <View style={styles.card}>
-                    <ProgressBar step={1} total={4} />
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+                <View style={styles.container}>
+                    <View style={styles.content}>
+                        <View style={styles.header}>
+                            <TouchableOpacity onPress={() => router.back()}>
+                                <Text style={styles.backArrow}>←</Text>
+                            </TouchableOpacity>
 
-                    <Text style={styles.title}>Dados básicos</Text>
-                    <Text style={styles.subTitle}>Precisamos de algumas informações para identificá-lo</Text>
+                            <Text style={styles.headerTitle}>Cadastro</Text>
+                            <View style={styles.side} />
+                        </View>
+                        
+                        <ProgressBar step={1} total={4} />
 
-                    <Text style={styles.label}>CPF</Text>
-                    <TextInput
-                        placeholder="000.000.000-00"
-                        style={styles.input}
-                    />
+                        <Text style={styles.title}>Dados básicos</Text>
+                        <Text style={styles.subTitle}>Precisamos de algumas informações para identificá-lo</Text>
 
-                    <Text style={styles.label}>Telefone/Celular</Text>
-                    <TextInput
-                        placeholder="(00) 00000-0000"
-                        style={styles.input}
-                    />
-                    <Text style={styles.info}>Para contato em caso de emergência</Text>
+                        <Text style={styles.label}>CPF</Text>
+                        <TextInput
+                            placeholder="000.000.000-00"
+                            style={styles.input}
+                        />
 
-                    <TouchableOpacity
-                        style={styles.buttonContinue}
-                        onPress={() => router.push('/register/unit')}
-                    >
-                        <Text style={styles.buttonText}>
-                            Continuar
-                        </Text>
-                    </TouchableOpacity>
+                        <Text style={styles.label}>Telefone/Celular</Text>
+                        <TextInput
+                            placeholder="(00) 00000-0000"
+                            style={styles.input}
+                        />
+                        <Text style={styles.info}>Para contato em caso de emergência</Text>
+
+                        <TouchableOpacity
+                            style={styles.buttonContinue}
+                            onPress={() => router.push('/register/unit')}
+                        >
+                            <Text style={styles.buttonText}>
+                                Continuar
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-
+            </KeyboardAvoidingView>
         </>
     );
 }
@@ -55,12 +62,29 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 20,
     },
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 20,
-        // alignItems: 'center',
-        elevation: 5,
+    content: {
+        flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E5E7EB',
+        paddingBottom: 10,
+        marginBottom: 16,
+    },
+    side: {
+        width: 40,
+        alignItems: 'center',
+    },
+    backArrow: {
+        fontSize: 20,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        justifyContent: 'center',
     },
     title: {
         fontSize: 24,
