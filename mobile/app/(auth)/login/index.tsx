@@ -7,7 +7,7 @@ export default function Login() {
     return (
         <View style={styles.container}>
             <Image
-                source={require('../../assets/images/icone_QR_token_flow.png')}
+                source={require('../../../assets/images/icone_QR_token_flow.png')}
                 style={styles.logo}
             />
 
@@ -17,7 +17,9 @@ export default function Login() {
                 Gerencie sua moradia de forma simples e prática. Tudo em um só lugar.
             </Text>
 
-            <TouchableOpacity style={styles.primaryButton}>
+            <TouchableOpacity 
+                onPress={() => router.push('/(auth)/login/access')}
+            style={styles.primaryButton}>
                 <Text style={styles.primaryText}>Entrar</Text>
             </TouchableOpacity>
 

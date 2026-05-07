@@ -30,7 +30,6 @@ export default function Confirm() {
                     <View style={styles.row}>
                         <Text style={styles.label}>Unidade:</Text>
                         <Text style={styles.value}>
-                            {/* Agora exibe o que veio do Backend */}
                             {params.unit || '-'} 
                         </Text>
                     </View>
@@ -38,7 +37,6 @@ export default function Confirm() {
                     <View style={styles.row}>
                         <Text style={styles.label}>Tipo:</Text>
                         <Text style={styles.value}>
-                            {/* Agora exibe o que veio do Backend[cite: 4, 11] */}
                             {params.type || '-'}
                         </Text>
                     </View>
@@ -46,7 +44,6 @@ export default function Confirm() {
                     <View style={styles.row}>
                         <Text style={styles.label}>Veículo:</Text>
                         <Text style={styles.value}>
-                            {/* Verifica o parâmetro enviado pelo servidor[cite: 4, 11] */}
                             {params.hasVehicle === 'true' ? 'Sim' : 'Não'}
                         </Text>
                     </View>
@@ -57,6 +54,12 @@ export default function Confirm() {
                         onPress={() => router.push('/login')}
                         style={styles.primaryButton}>
                         <Text style={styles.primaryText}>Ir para o início</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => router.push('/(auth)/login/access')}
+                    >
+                        <Text style={styles.link}>Voltar para login</Text>
                     </TouchableOpacity>
                 </View>
             </View>
