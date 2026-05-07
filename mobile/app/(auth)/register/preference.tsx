@@ -16,7 +16,7 @@ export default function Preference() {
         setLoading(true);
         try {
             // Lembre-se de substituir pela sua URL real após o deploy
-            const response = await fetch('https://SUA_URL_AQUI.cloudfunctions.net/cadastrarUsuario', {
+            const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 

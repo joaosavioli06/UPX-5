@@ -1,8 +1,34 @@
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { useRegister } from "@/contexts/RegisterContext";
 
 export default function Register() {
     const router = useRouter();
+    const { setData } = useRegister();
+    
+    // Estados locais para capturar o que o usuário digita
+    const [nome, setNome] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    function handleContinue() {
+        // Validação simples antes de salvar (opcional)
+        if (!nome || !email || !password) {
+            alert("Por favor, preencha todos os campos.");
+            return;
+        }
+
+        // 'as any' para o TypeScript ignorar a diferença de idioma
+        // entre o Front (inglês) e back (português)
+        setData({ 
+            nome, 
+            email, 
+            password 
+        } as any); 
+
+        router.push('/register/basic');
+    }
 
     return (
         <>
@@ -28,12 +54,18 @@ export default function Register() {
                         <TextInput
                             placeholder="João da Silva"
                             style={styles.input}
+                            value={nome}
+                            onChangeText={setNome} // Atualiza o estado ao digitar
                         />
 
                         <Text style={styles.label}>E-mail</Text>
                         <TextInput
                             placeholder="seu@email.com"
                             style={styles.input}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            value={email}
+                            onChangeText={setEmail} // Atualiza o estado ao digitar
                         />
                         <Text style={styles.info}>
                             Usaremos este e-mail para comunicações importantes
@@ -43,12 +75,16 @@ export default function Register() {
                         <TextInput
                             placeholder="Mínimo 8 caracteres"
                             style={styles.input}
+                            secureTextEntry // Esconde a senha
+                            value={password}
+                            onChangeText={setPassword} // Atualiza o estado ao digitar
                         />
                         <Text style={styles.info}>Mínimo de 8 caracteres</Text>
 
                         <TouchableOpacity
                             style={styles.buttonCreate}
-                            onPress={() => router.push('/register/basic')}>
+                            onPress={handleContinue} // Agora chama a função que salva e navega
+                        >
                             <Text style={styles.buttonText}>
                                 Criar conta
                             </Text>
