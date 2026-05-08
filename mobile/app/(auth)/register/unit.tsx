@@ -57,6 +57,7 @@ export default function Unit() {
                             style={styles.input}
                             value={unitNumber}
                             onChangeText={setUnitNumber}
+                            keyboardType="numeric"
                         />
 
                         <Text style={styles.label}>Tipo de moradia</Text>

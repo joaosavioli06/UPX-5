@@ -1,7 +1,11 @@
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Acess() {
+    const [showPassword, setShowPassword] = useState(false);
+
     const router = useRouter();
 
     return (
@@ -28,13 +32,30 @@ export default function Acess() {
                         <TextInput
                             placeholder="seu@email.com"
                             style={styles.input}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            autoCorrect={false}
                         />
 
                         <Text style={styles.label}>Senha</Text>
-                        <TextInput
-                            placeholder="••••••••"
-                            style={styles.input}
-                        />
+
+                        <View style={styles.passwordContainer}>
+                            <TextInput
+                                placeholder="••••••••"
+                                style={styles.passwordInput}
+                                secureTextEntry={!showPassword}
+                                autoCorrect={false}
+                                autoCapitalize="none"
+                            />
+
+                            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                <Ionicons
+                                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                    size={22}
+                                    color="#6B7280"
+                                />
+                            </TouchableOpacity>
+                        </View>
 
                         <Text style={styles.password}>Esqueci minha senha</Text>
 
@@ -147,5 +168,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#00A63E',
         fontWeight: 'medium',
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#D1D5DB',
+        borderRadius: 14,
+        paddingHorizontal: 12,
+        marginTop: 6,
+    },
+    passwordInput: {
+        flex: 1,
+        paddingVertical: 12,
     },
 });

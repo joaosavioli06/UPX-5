@@ -105,7 +105,7 @@ export default function Preference() {
 
                     <Text style={styles.obsTitle}>Observações (opcional)</Text>
                     <TextInput
-                        placeholder="Alguma informação adicional?"
+                        placeholder="Alguma informação adicional que gostaria de compartilhar?"
                         style={styles.inputObs}
                         multiline
                         numberOfLines={4}

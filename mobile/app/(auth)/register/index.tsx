@@ -2,11 +2,14 @@ import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingVi
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useRegister } from "@/contexts/RegisterContext";
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Register() {
+    const [showPassword, setShowPassword] = useState(false);
+
     const router = useRouter();
     const { setData } = useRegister();
-    
+
     // Estados locais para capturar o que o usuário digita
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
@@ -21,11 +24,11 @@ export default function Register() {
 
         // 'as any' para o TypeScript ignorar a diferença de idioma
         // entre o Front (inglês) e back (português)
-        setData({ 
-            nome, 
-            email, 
-            password 
-        } as any); 
+        setData({
+            nome,
+            email,
+            password
+        } as any);
 
         router.push('/register/basic');
     }
@@ -46,7 +49,7 @@ export default function Register() {
                             <Text style={styles.headerTitle}>Cadastro</Text>
                             <View style={styles.side} />
                         </View>
-                        
+
                         <Text style={styles.title}>Crie sua conta</Text>
                         <Text style={styles.subtitle}>Preencha os dados abaixo para começar</Text>
 
@@ -66,19 +69,34 @@ export default function Register() {
                             autoCapitalize="none"
                             value={email}
                             onChangeText={setEmail} // Atualiza o estado ao digitar
+                            autoCorrect={false}
                         />
                         <Text style={styles.info}>
                             Usaremos este e-mail para comunicações importantes
                         </Text>
 
                         <Text style={styles.label}>Senha</Text>
-                        <TextInput
-                            placeholder="Mínimo 8 caracteres"
-                            style={styles.input}
-                            secureTextEntry // Esconde a senha
-                            value={password}
-                            onChangeText={setPassword} // Atualiza o estado ao digitar
-                        />
+
+                        <View style={styles.passwordContainer}>
+                            <TextInput
+                                placeholder="Mínimo 8 caracteres"
+                                style={styles.passwordInput}
+                                secureTextEntry={!showPassword}
+                                value={password}
+                                onChangeText={setPassword}
+                                autoCorrect={false}
+                                autoCapitalize="none"
+                            />
+
+                            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                <Ionicons
+                                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                    size={22}
+                                    color="#6B7280"
+                                />
+                            </TouchableOpacity>
+                        </View>
+
                         <Text style={styles.info}>Mínimo de 8 caracteres</Text>
 
                         <TouchableOpacity
@@ -91,7 +109,7 @@ export default function Register() {
                         </TouchableOpacity>
 
                         <Text style={styles.enter}>
-                            Já tem uma conta? <Text onPress={() => router.push('/login')} style={styles.link}>Entrar</Text>.
+                            Já tem uma conta? <Text onPress={() => router.push('/login/access')} style={styles.link}>Entrar</Text>.
                         </Text>
                     </View>
                 </View>
@@ -160,7 +178,8 @@ const styles = StyleSheet.create({
     info: {
         fontSize: 12,
         color: '#6A7282',
-        marginBottom: 10,
+        // marginBottom: 10,
+        marginTop: 10
     },
     buttonCreate: {
         backgroundColor: '#16a34a',
@@ -182,5 +201,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#00A63E',
         fontWeight: 'medium',
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#D1D5DB',
+        borderRadius: 14,
+        paddingHorizontal: 12,
+        marginTop: 6,
+    },
+    passwordInput: {
+        flex: 1,
+        paddingVertical: 12,
     },
 });
