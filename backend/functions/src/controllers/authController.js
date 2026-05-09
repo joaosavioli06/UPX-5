@@ -3,13 +3,23 @@ const { sendSuccess, sendError } = require('../utils/responseHandler'); // Utils
 
 const register = async (req, res) => {
   try {
-    const { nome, email, password, tipo_perfil } = req.body;
+    // 1. Captura todos os campos que o celular está enviando
+    const { nome, email, password, tipo_perfil, codigoAcesso, userData } = req.body;
 
+    // 2. Validação básica (nome, email, senha e perfil continuam obrigatórios)
     if (!nome || !email || !password || !tipo_perfil) {
-      return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+      return res.status(400).json({ error: 'Campos obrigatórios faltando (nome, email, senha ou perfil).' });
     }
 
-    const resultado = await authService.cadastrarUsuario(nome, email, password, tipo_perfil);
+    // 3. Chama o serviço passando os 6 argumentos na ordem correta
+    const resultado = await authService.cadastrarUsuario(
+      nome, 
+      email, 
+      password, 
+      tipo_perfil, 
+      codigoAcesso, 
+      userData
+    );
 
     return res.status(201).json({
       message: 'Usuário criado com sucesso',
@@ -17,12 +27,14 @@ const register = async (req, res) => {
     });
 
   } catch (error) {
-    // Tratamento de erros específicos do Firebase
+    console.error('Erro no controller:', error);
+    
     if (error.code === 'auth/email-already-exists') {
       return res.status(409).json({ error: 'Este e-mail já está em uso.' });
     }
-    
-    return res.status(500).json({ error: 'Erro interno ao processar o cadastro.' });
+
+    // Retorna a mensagem real do erro (ex: "Código de síndico inválido")
+    return res.status(400).json({ error: error.message || 'Erro ao processar o cadastro.' });
   }
 };
 

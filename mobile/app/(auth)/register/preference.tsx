@@ -12,33 +12,44 @@ export default function Preference() {
     const { data } = useRegister(); // Acesso aos dados do contexto[cite: 2]
 
     // Função para enviar os dados ao seu Backend no Firebase
-    async function handleFinalize() {
+ async function handleFinalize() {
         setLoading(true);
+        // Criamos uma referência 'limpa' para o TypeScript não reclamar
+        const registerData = data as any;
+
         try {
-            // Lembre-se de substituir pela sua URL real após o deploy
             const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    ...data, 
-                    preferencias: selectedOptions 
+                    nome: registerData.nome,
+                    email: registerData.email,
+                    password: registerData.password,
+                    tipo_perfil: registerData.tipo_perfil || 'morador',
+                    codigoAcesso: registerData.codigoAcesso || '',
+                    userData: { ...registerData, preferencias: selectedOptions }
                 }), 
             });
 
-            if (!response.ok) throw new Error('Erro no servidor');
-            const result = await response.json();
-
-            // Navega para a confirmação com os dados oficiais do banco[cite: 4]
+            if (!response.ok) {
+                const errorDetail = await response.json();
+                throw new Error(errorDetail.message || 'Erro no servidor');
+            }
+            
             router.push({
                 pathname: '/register/confirm',
-                params: { unit: result.unit, type: result.type }
+                params: { 
+                    unit: registerData.unit, 
+                    type: registerData.tipo_perfil || 'Morador',
+                    hasVehicle: String(registerData.hasVehicle) 
+                }
             });
-        } catch (error) {
-            Alert.alert("Erro", "Não foi possível salvar os dados no servidor.");
+        } catch (error: any) {
+            Alert.alert("Erro no Cadastro", error.message);
         } finally {
             setLoading(false);
         }
-    } // Fechamento correto da função handleFinalize
+    }
 
     function toggleOption(option: string) {
         if (selectedOptions.includes(option)) {
