@@ -61,6 +61,7 @@ export default function Acess() {
 
                         <View style={styles.buttons}>
                             <TouchableOpacity
+                                onPress={() => router.replace('/(tabs)')}
                                 style={styles.primaryButton}
                             >
                                 <Text style={styles.primaryText}>Entrar</Text>
