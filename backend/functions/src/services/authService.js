@@ -29,11 +29,15 @@ const cadastrarUsuario = async (nome, email, password, tipo_perfil, codigoAcesso
       is_admin: isAdmin,
       status: 'ativo',
       
-      // Dados da Unidade (Sincronizado com unit.tsx)
+      // Dados da Unidade (basic.tsx)
+      cpf: userData?.cpf || '', 
+      telefone: userData?.telefone || '',
+
+      // Dados da Unidade (unit.tsx)
       unidade: userData.unit || '',
       tipo_moradia: userData.type || '',
 
-      // Dados do Veículo (Sincronizado com vehicle.tsx)
+      // Dados do Veículo (vehicle.tsx)
       veiculo: {
         possui: userData.hasVehicle === true,
         placa: userData.plate || '',
@@ -57,10 +61,6 @@ const cadastrarUsuario = async (nome, email, password, tipo_perfil, codigoAcesso
 
 const loginUsuario = async (email, password) => {
   try {
-    // No ambiente local/node, o Firebase Admin não faz login com senha direto.
-    // Para a AC2, simulamos a validação ou usamos o Identity Platform.
-    // Mas a forma mais robusta é buscar o usuário e validar o status:
-    
     const userRecord = await admin.auth().getUserByEmail(email);
     const userDoc = await admin.firestore().collection('usuarios').doc(userRecord.uid).get();
     

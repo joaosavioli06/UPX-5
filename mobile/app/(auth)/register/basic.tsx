@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform, Alert } from "react-native";
 import ProgressBar from "@/components/progressBar";
 import { useRegister } from "@/contexts/RegisterContext";
 import { useRouter } from "expo-router";
@@ -11,18 +11,40 @@ export default function Basic() {
     const [cpf, setCpf] = useState('');
     const [phone, setPhone] = useState('');
 
-    function handleContinue() {
+    async function handleContinue() {
         if (!cpf || !phone) {
-            alert("Por favor, preencha o CPF e o Telefone.");
-            return;
+            return Alert.alert("Campos obrigatórios", "Por favor, preencha o CPF e o Telefone.");
         }
 
-        setData({
-            cpf,
-            telefone: phone
-        } as any);
+        try {
+            // Verificação de duplicidade (CPF e Telefone)
+            const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    cpf, 
+                    telefone: phone // Enviamos o phone do estado como 'telefone' para o back
+                })
+            });
+            
+            const result = await response.json();
 
-        router.push('/register/unit');
+            if (result.exists) {
+                // A mensagem virá do backend: "Este CPF já..." ou "Este telefone já..."
+                return Alert.alert("Dados já cadastrados", result.message);
+            }
+
+            // Se nada estiver duplicado, segue o fluxo
+            setData({ 
+                cpf, 
+                telefone: phone 
+            } as any);
+            
+            router.push('/register/unit');
+
+        } catch (error) {
+            Alert.alert("Erro", "Não foi possível validar seus dados. Tente novamente.");
+        }
     }
 
     function formatCPF(value: string) {

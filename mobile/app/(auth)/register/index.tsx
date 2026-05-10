@@ -15,15 +15,30 @@ export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    function handleContinue() {
-        // Validação simples antes de salvar (opcional)
-        if (!nome || !email || !password) {
-            alert("Por favor, preencha todos os campos.");
+    async function handleContinue() {
+    // 1. Mantemos sua validação local de campos vazios
+    if (!nome || !email || !password) {
+        alert("Por favor, preencha todos os campos.");
+        return;
+    }
+
+    try {
+        // 2. Adicionamos a trava: pergunta para a API se o e-mail já existe
+        const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }) 
+        });
+
+        const result = await response.json();
+
+        // 3. Se a API disser que já existe, paramos aqui e avisamos o usuário
+        if (result.exists) {
+            alert("Este e-mail já está em uso. Por favor, escolha outro.");
             return;
         }
 
-        // 'as any' para o TypeScript ignorar a diferença de idioma
-        // entre o Front (inglês) e back (português)
+        // 4. SE PASSOU NA VALIDAÇÃO: Executa o que você já tinha antes
         setData({
             nome,
             email,
@@ -31,7 +46,12 @@ export default function Register() {
         } as any);
 
         router.push('/register/basic');
+
+    } catch (error) {
+        // Se a internet cair ou a API falhar, avisamos para tentar de novo
+        alert("Erro ao validar dados. Verifique sua conexão.");
     }
+}
 
     return (
         <>

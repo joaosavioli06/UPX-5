@@ -1,3 +1,4 @@
+const admin = require('firebase-admin');
 const authService = require('../services/authService');
 const { sendSuccess, sendError } = require('../utils/responseHandler'); // Utils
 
@@ -55,4 +56,29 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = {register, login};
+const checkExistence = async (req, res) => {
+  try {
+    const { email, cpf, telefone } = req.body;
+    const usersRef = admin.firestore().collection('usuarios');
+    let exists = false;
+    let message = "";
+
+    if (email) {
+      const snapshot = await usersRef.where('email', '==', email).get();
+      if (!snapshot.empty) { exists = true; message = "E-mail já cadastrado."; }
+    } else if (cpf) {
+      const snapshot = await usersRef.where('cpf', '==', cpf).get();
+      if (!snapshot.empty) { exists = true; message = "CPF já cadastrado."; }
+    } else if (telefone) {
+      // Nova checagem de telefone
+      const snapshot = await usersRef.where('telefone', '==', telefone).get();
+      if (!snapshot.empty) { exists = true; message = "Este telefone já está cadastrado."; }
+    }
+
+    return res.status(200).json({ exists, message });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {register, login, checkExistence};
