@@ -31,7 +31,7 @@ const cadastrarUsuario = async (nome, email, password, tipo_perfil, codigoAcesso
       
       // Dados da Unidade (basic.tsx)
       cpf: userData?.cpf || '', 
-      telefone: userData?.telefone || '',
+      telefone: userData?.telefone.replace(/\D/g, '') || '',
 
       // Dados da Unidade (unit.tsx)
       unidade: userData.unit || '',

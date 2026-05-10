@@ -59,25 +59,55 @@ const login = async (req, res) => {
 const checkExistence = async (req, res) => {
   try {
     const { email, cpf, telefone } = req.body;
-    const usersRef = admin.firestore().collection('usuarios');
     let exists = false;
     let message = "";
 
+    // 1. Checagem de E-mail (Authentication E no Firestore)
     if (email) {
-      const snapshot = await usersRef.where('email', '==', email).get();
-      if (!snapshot.empty) { exists = true; message = "E-mail já cadastrado."; }
-    } else if (cpf) {
-      const snapshot = await usersRef.where('cpf', '==', cpf).get();
-      if (!snapshot.empty) { exists = true; message = "CPF já cadastrado."; }
-    } else if (telefone) {
-      // Nova checagem de telefone
-      const snapshot = await usersRef.where('telefone', '==', telefone).get();
-      if (!snapshot.empty) { exists = true; message = "Este telefone já está cadastrado."; }
+      try {
+        // Firebase Authentication
+        await admin.auth().getUserByEmail(email);
+        exists = true;
+        message = "Este e-mail já está em uso na portaria do sistema.";
+      } catch (authError) {
+        const snapshot = await admin.firestore().collection('usuarios').where('email', '==', email).get();
+        if (!snapshot.empty) {
+          exists = true;
+          message = "Este e-mail já está vinculado a um perfil no banco de dados.";
+        }
+      }
+    } 
+    
+    // Checagem de CPF
+    else if (cpf) {
+      const snapshot = await admin.firestore().collection('usuarios').where('cpf', '==', cpf).get();
+      if (!snapshot.empty) {
+        exists = true;
+        message = "Este CPF já está cadastrado.";
+      }
     }
+
+  else if (telefone) {
+  
+  const telefoneLimpo = telefone.replace(/\D/g, ''); 
+
+  const snapshot = await admin.firestore().collection('usuarios').get();
+  
+  const existeDuplicado = snapshot.docs.some(doc => {
+    const telBanco = doc.data().telefone || "";
+    return telBanco.replace(/\D/g, '') === telefoneLimpo;
+  });
+
+  if (existeDuplicado) {
+    exists = true;
+    message = "Este telefone já está cadastrado.";
+  }
+}
 
     return res.status(200).json({ exists, message });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error('Erro na checagem:', error);
+    return res.status(500).json({ error: 'Erro interno ao validar dados.' });
   }
 };
 
