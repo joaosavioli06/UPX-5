@@ -1,9 +1,19 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth, User } from "@/contexts/AuthContext";
 
 export default function Home() {
   const router = useRouter();
+  const { user, loading } = useAuth();
+
+if (loading) {
+    return (
+      <Text style={{color: 'red'}}>
+    DEBUG: {user ? `Logado como ${user.nome}` : "Nenhum usuário no estado"}
+</Text>
+    );
+  }
 
   return (
     <ScrollView
@@ -18,7 +28,9 @@ export default function Home() {
           <View>
             <Text style={styles.title}>Bem-vindo(a),</Text>
 
-            <Text style={styles.name}>Livia Borba</Text>
+            <Text style={styles.name}>
+            {user?.nome || 'Morador'}
+            </Text>
           </View>
 
           <TouchableOpacity style={styles.notificationButton}>
@@ -34,7 +46,9 @@ export default function Home() {
           <View>
             <Text style={styles.unitTitle}>Unidade</Text>
 
-            <Text style={styles.block}>Bloco A - Apto 101</Text>
+            <Text style={styles.block}>
+            {user?.unidade || 'Unidade não informada'}
+        </Text>
           </View>
 
           <View style={styles.activeBadge}>

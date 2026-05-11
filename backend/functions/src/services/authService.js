@@ -1,5 +1,7 @@
-const admin = require('firebase-admin');
 const { FieldValue } = require('firebase-admin/firestore');
+const admin = require('firebase-admin');
+const axios = require('axios');
+require('dotenv').config();
 
 const cadastrarUsuario = async (nome, email, password, tipo_perfil, codigoAcesso, userData) => {
   let userRecord;
@@ -60,25 +62,61 @@ const cadastrarUsuario = async (nome, email, password, tipo_perfil, codigoAcesso
 };
 
 const loginUsuario = async (email, password) => {
-  try {
-    const userRecord = await admin.auth().getUserByEmail(email);
-    const userDoc = await admin.firestore().collection('usuarios').doc(userRecord.uid).get();
-    
-    if (!userDoc.exists || userDoc.data().status !== 'ativo') {
-      throw new Error('Usuário inativo ou não encontrado.');
+    try {
+        const API_KEY = process.env.WEB_API_KEY_AUTH;
+
+        if (!API_KEY) {
+            throw new Error("Erro de configuração: WEB_API_KEY_AUTH não definida.");
+        }
+
+        // 1. Validação REAL de senha via API REST do Firebase
+        const authUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
+        
+        const authResponse = await axios.post(authUrl, {
+            email,
+            password,
+            returnSecureToken: true
+        });
+
+        // O localId retornado pela API do Google é o UID do usuário
+        const uid = authResponse.data.localId;
+
+        // 2. Busca os dados complementares no Firestore (nome, unidade, status, etc)
+        const userDoc = await admin.firestore().collection('usuarios').doc(uid).get();
+
+        if (!userDoc.exists) {
+            throw new Error("Perfil do usuário não encontrado no banco de dados.");
+        }
+
+        const dadosUsuario = userDoc.data();
+
+        // 3. Verificação de status (conforme sua lógica original)
+        if (dadosUsuario.status !== 'ativo') {
+            throw new Error("Usuário inativo ou não autorizado.");
+        }
+
+        // 4. Gera um Custom Token para o Mobile (padrão de segurança)
+        const customToken = await admin.auth().createCustomToken(uid);
+
+        return {
+            token: customToken,
+            usuario: {
+                uid: uid,
+                ...dadosUsuario
+            }
+        };
+
+    } catch (error) {
+        // Tratamento de erro específico para senha/email errados
+        const errorMsg = error.response?.data?.error?.message;
+        
+        if (errorMsg === 'INVALID_PASSWORD' || errorMsg === 'EMAIL_NOT_FOUND') {
+            throw new Error("E-mail ou senha incorretos.");
+        }
+        
+        console.error(`[AuthService] Erro no login: ${error.message}`);
+        throw error;
     }
-
-    // Gerar um token customizado para o Mobile
-    const customToken = await admin.auth().createCustomToken(userRecord.uid);
-
-    return {
-      token: customToken,
-      usuario: userDoc.data()
-    };
-  } catch (error) {
-    console.error(`[AuthService] Erro no login: ${error.message}`);
-    throw error;
-  }
 };
 
 module.exports = { cadastrarUsuario, loginUsuario };
