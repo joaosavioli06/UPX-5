@@ -1,12 +1,51 @@
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from "react-native";
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function Acess() {
+export default function Access() { // Corrigido de Acess para Access
     const [showPassword, setShowPassword] = useState(false);
-
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    
+    const { signIn } = useAuth();
     const router = useRouter();
+
+    async function handleLogin() {
+        if (!email || !password) {
+            Alert.alert("Atenção", "Por favor, preencha todos os campos.");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                
+                await signIn(result.usuario, result.token); 
+
+                // Navegação para a Home
+                router.replace('/(tabs)/home' as any);
+            } else {
+            
+                Alert.alert("Erro no Login", result.error || "Credenciais inválidas.");
+            }
+        } catch (error) {
+            Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor. Verifique sua internet.");
+            console.error("[Login Error]:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <>
