@@ -68,7 +68,10 @@ export default function Home() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.gridCard}>
+        <TouchableOpacity 
+        onPress={() => router.push('/discard')}
+        style={styles.gridCard}
+        >
           <Ionicons name="trash-outline" size={36} color={'#374151'} />
 
           <Text style={styles.gridText}>
@@ -142,7 +145,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9FAFB',
-    // justifyContent: 'center',
     padding: 20,
   },
   content: {
