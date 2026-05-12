@@ -1,4 +1,4 @@
-![Logo do Projeto](/mobile/assets/images/icone_token_flow_completo.png)  
+![Logo do Projeto](/mobile/assets/images/icone_token_flow_completo_fundo_rmv.png)  
 
 # Usina de Projetos Experimentais 5 - Grupo ODSCoders
 
@@ -28,7 +28,8 @@ O projeto visa resolver a desorganização e o descarte irregular de itens grand
 * **Mobile:** React Native, Expo Go 
 * **Backend:** Node.js, Express
 * **Banco de Dados:** Firebase (Firebase Datastore)
-* **API de IA:** 
+* **Object Storage:** Firebase (Firebase Storage)
+* **API de IA:** A definir...
 
 ### 1. 📁 Estrutura do Repositório
 
@@ -36,18 +37,19 @@ O repositório está organizado para o deploy unificado (Frontend e Backend) no 
 
 | Pasta/Arquivo | Conteúdo | Objetivo |
 | :--- | :--- | :--- |
-| `mobile/` | Contém todo o código da interface mobile do usuário (React/JS). | Interface Mobile. |
+| `mobile/` | Contém todo o código da interface mobile do usuário (React/TS). | Interface Mobile. |
 | `backend/` | Código Node.js do backend, rodando no Firebase Cloud Functions. | Lógica de segurança e acesso ao banco de dados. |
  `DOCS/` | Arquivos de trabalhos utilizados durante o 5º semestre para a disciplina de UPX 5  | Deixar público os arquivos para consulta geral |
 
 ---
 
-### Mentorias Presenciais
+### Mentorias Presenciais / Apresentações
 
-Para o 5º semestre, foram definidos dias para mentorias presenciais. O grupo cumpriu com esta exigência, participando em todas as mentorias, nos seguintes dias:
+Para o 5º semestre, foram definidos dias para mentorias presenciais e apresentações via Teams. O grupo cumpriu com esta exigência, participando em todas, nos seguintes dias:
 
 | Data | Mentoria | Participantes |
 | :--- | :--- | :--- |
 | `22/04/2026` | 1ª mentoria | Lívia & Luiz Fernando  |
+| `11/05/2026` | Apresentação Projeto 70% (Funcionalidades)| Felipe & João Gabriel  |
 
 
