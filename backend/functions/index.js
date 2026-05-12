@@ -20,7 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/itens', itemRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Middleware de Erro (DEVE ser o último)
+// Middleware de Erro 
 app.use(globalErrorHandler);
 
 exports.api = functions.https.onRequest(app);
