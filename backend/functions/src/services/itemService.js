@@ -14,15 +14,14 @@ const registrarDescarte = async (uidUsuario, dadosItem) => {
     const itemRef = db.collection('itens_descarte').doc(itemID);
 
     const novoItem = {
-      id: itemID,
-      token_qrcode: tokenUUID, // Este é o valor que vira o QR Code
-      morador_id: uidUsuario,
-      tipo_residuo: dadosItem.tipo || 'pendente_analise', // IA preencherá depois
-      status: 'aguardando_coleta',
-      fotos: dadosItem.fotos || [], // Array de URLs do Storage
-      localizacao_condominio: dadosItem.localizacao || '',
-      criado_em: admin.firestore.FieldValue.serverTimestamp(),
-      atualizado_em: admin.firestore.FieldValue.serverTimestamp(),
+      qr_code_token: tokenUUID,       
+      morador_id: uidUsuario,         
+      categoria: dadosItem.categoria || '', 
+      nome_item: dadosItem.nome || '',      
+      status: 'aguardando_coleta',   
+      foto_url: dadosItem.foto_url || '',   
+      ia_confianca: 0,                
+      data_registro: admin.firestore.FieldValue.serverTimestamp(), 
     };
 
     batch.set(itemRef, novoItem);
