@@ -7,13 +7,21 @@ export default function Home() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
-if (loading) {
+  if (loading) {
     return (
-      <Text style={{color: 'red'}}>
-    DEBUG: {user ? `Logado como ${user.nome}` : "Nenhum usuário no estado"}
-</Text>
+      <Text style={{ color: 'red' }}>
+        DEBUG: {user ? `Logado como ${user.nome}` : "Nenhum usuário no estado"}
+      </Text>
     );
   }
+
+  const shortName = user?.nome
+    ?.split(' ')
+    .filter(Boolean);
+
+  const displayName = shortName
+    ? `${shortName[0]} ${shortName[shortName.length - 1]}`
+    : 'Morador';
 
   return (
     <ScrollView
@@ -29,7 +37,7 @@ if (loading) {
             <Text style={styles.title}>Bem-vindo(a),</Text>
 
             <Text style={styles.name}>
-            {user?.nome || 'Morador'}
+              {displayName}
             </Text>
           </View>
 
@@ -47,8 +55,8 @@ if (loading) {
             <Text style={styles.unitTitle}>Unidade</Text>
 
             <Text style={styles.block}>
-            {user?.unidade || 'Unidade não informada'}
-        </Text>
+              {user?.unidade || 'Unidade não informada'}
+            </Text>
           </View>
 
           <View style={styles.activeBadge}>
@@ -82,9 +90,9 @@ if (loading) {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-        onPress={() => router.push('/discard')}
-        style={styles.gridCard}
+        <TouchableOpacity
+          onPress={() => router.push('/discard')}
+          style={styles.gridCard}
         >
           <Ionicons name="trash-outline" size={36} color={'#374151'} />
 
