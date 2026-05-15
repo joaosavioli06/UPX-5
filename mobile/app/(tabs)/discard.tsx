@@ -92,7 +92,10 @@ export default function Discard() {
                             </View>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.discardCard}>
+                        <TouchableOpacity 
+                            onPress={() => router.push('/myDiscards')}
+                            style={styles.discardCard}
+                        >
                             <View style={styles.boxOrange}>
                                 <Ionicons
                                     name="trash-outline"
