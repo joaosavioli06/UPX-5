@@ -50,23 +50,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const signIn = async (userData: User, token: string) => {
     try {
-        
-        setUser(userData); 
+        setLoading(true); // 1. Trava a tela para processar
+        setUser(null);    // 2. FORÇA a limpeza do usuário anterior no estado global
 
+        // 3. Persistência no disco
         await AsyncStorage.setItem('@TokenFlow:user', JSON.stringify(userData));
         await AsyncStorage.setItem('@TokenFlow:token', token);
         
-        console.log("Estado atualizado com:", userData.nome);
+        // 4. Define o NOVO usuário
+        setUser(userData); 
     } catch (error) {
-        console.error("Erro ao salvar no storage:", error);
+        console.error(error);
     } finally {
-        setLoading(false); // Finaliza o carregamento
+        setLoading(false); // 5. Libera a tela já com os novos dados
     }
 };
-    const signOut = async () => {
-        await AsyncStorage.clear();
-        setUser(null);
-    };
+
+const signOut = async () => {
+    setLoading(true);
+    await AsyncStorage.clear();
+    setUser(null);
+    setLoading(false);
+};
 
     return (
         <AuthContext.Provider value={{ user, loading, signIn, signOut }}>

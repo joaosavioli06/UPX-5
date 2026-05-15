@@ -3,9 +3,12 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import * as ImagePicker from 'expo-image-picker'
 import { useDiscard } from "@/contexts/DiscardContext";
+import { useAuth } from "@/contexts/AuthContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Manual() {
     const { data, updateData } = useDiscard();
+    const { user } = useAuth(); 
 
     // const [selectedCategory, setSelectedCategory] = useState('');
     const [categoryError, setCategoryError] = useState(false);
@@ -58,7 +61,7 @@ export default function Manual() {
         );
     }
 
-    function handleRegister() {
+    async function handleRegister() {
         let hasError = false;
 
         if (!data.itemName.trim()) {
@@ -73,7 +76,52 @@ export default function Manual() {
 
         if (hasError) return;
 
-        router.push('/registered')
+       try {
+        const token = await AsyncStorage.getItem('@TokenFlow:token');
+        if (!token) {
+            console.error("❌ Nenhum token encontrado no storage!");
+            return;
+            }
+
+    // LOG 1: Verificar o que está sendo enviado (Payload)
+    const payload = {
+        nome_item: data.itemName,
+        categoria: data.category,
+        observacoes: data.observations,
+        morador_id: user?.uid,
+        status: "Pendente"
+    };
+    console.log("📤 Enviando descarte:", JSON.stringify(payload, null, 2));
+
+    const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/itens/registrar', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify(payload)
+    });
+
+    // LOG 2: Verificar o status da resposta HTTP
+    console.log("📡 Status da Resposta:", response.status);
+
+    const result = await response.json();
+
+    if (response.ok) {
+        // LOG 3: Sucesso total
+        console.log("✅ Sucesso no Firestore! ID do Token:", result.tokenQR);
+        router.push('/registered');
+    } else {
+        // LOG 4: Erro de lógica do servidor (ex: validação falhou)
+        console.error("❌ Erro no Servidor (JSON):", result);
+        alert(`Erro: ${result.message || 'Falha ao registrar'}`);
+    }
+} catch (error) {
+    // LOG 5: Erro de rede ou crash (ex: URL errada ou servidor offline)
+    console.error("🚨 Erro crítico na requisição:", error);
+    alert("Não foi possível conectar ao servidor.");
+}
+
     }
 
     return (
