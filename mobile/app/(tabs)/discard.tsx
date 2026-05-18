@@ -29,7 +29,10 @@ export default function Discard() {
                     <Text style={styles.subTitle}>Escolha o método de registro do item descartado</Text>
 
                     <View style={styles.cards}>
-                        <TouchableOpacity style={styles.discardCard}>
+                        <TouchableOpacity
+                            onPress={() => router.push('/cameraIA')}
+                            style={styles.discardCard}
+                        >
                             <View style={styles.boxGreen}>
                                 <Ionicons
                                     name="camera-outline"
@@ -49,7 +52,8 @@ export default function Discard() {
                             </View>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.discardCard}>
+                        {/* Essa funcionalidade, permanecerá desabilitada */}
+                        {/* <TouchableOpacity style={styles.discardCard}>
                             <View style={styles.boxBlue}>
                                 <Ionicons
                                     name="qr-code-outline"
@@ -67,7 +71,7 @@ export default function Discard() {
                                     Escanear código QR do item
                                 </Text>
                             </View>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         <TouchableOpacity
                             onPress={() => router.push('/manual')}
@@ -92,7 +96,7 @@ export default function Discard() {
                             </View>
                         </TouchableOpacity>
 
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             onPress={() => router.push('/myDiscards')}
                             style={styles.discardCard}
                         >

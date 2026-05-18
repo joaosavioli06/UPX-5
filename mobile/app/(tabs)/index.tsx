@@ -5,7 +5,7 @@ import { useAuth, User } from "@/contexts/AuthContext";
 
 export default function Home() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
 
   if (loading) {
     return (
@@ -22,6 +22,11 @@ export default function Home() {
   const displayName = shortName
     ? `${shortName[0]} ${shortName[shortName.length - 1]}`
     : 'Morador';
+
+  async function handleLogout() {
+    await signOut();
+    router.replace('/(auth)/login');
+  }
 
   return (
     <ScrollView
@@ -152,7 +157,7 @@ export default function Home() {
       </View>
 
       <TouchableOpacity
-        onPress={() => router.push('/(auth)/login')}
+        onPress={handleLogout}
         style={styles.logoutButton}>
         <Text style={styles.logoutText}>
           Sair da conta
