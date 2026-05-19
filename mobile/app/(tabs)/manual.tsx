@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker'
 import { useDiscard } from "@/contexts/DiscardContext";
 import { useAuth } from "@/contexts/AuthContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Manual() {
     const { data, updateData } = useDiscard();
@@ -136,12 +137,14 @@ export default function Manual() {
                     showsVerticalScrollIndicator={false}
                 >
                     <View style={styles.header}>
-                        <TouchableOpacity onPress={() => router.back()}>
-                            <Text style={styles.backArrow}>←</Text>
-                        </TouchableOpacity>
+                        <TouchableOpacity
+                                onPress={() => router.back()}
+                                style={styles.backButton}
+                            >
+                                <Ionicons name="arrow-back" size={24} color="#111827" />
+                            </TouchableOpacity>
 
                         <Text style={styles.headerTitle}>Registrar item</Text>
-                        <View style={styles.side} />
                     </View>
 
                     <Text style={styles.title}>Informaçōes do item</Text>
@@ -300,13 +303,11 @@ const styles = StyleSheet.create({
         borderBottomColor: '#E5E7EB',
         paddingBottom: 18,
         marginBottom: 28,
+        marginTop: 20,
     },
-    side: {
-        width: 40,
-    },
-    backArrow: {
-        fontSize: 28,
-        color: '#111827',
+    backButton: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     headerTitle: {
         fontSize: 18,

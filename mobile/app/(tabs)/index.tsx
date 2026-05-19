@@ -8,12 +8,12 @@ export default function Home() {
   const { user, loading, signOut } = useAuth();
 
   if (loading) {
-    return (
-      <Text style={{ color: 'red' }}>
-        DEBUG: {user ? `Logado como ${user.nome}` : "Nenhum usuário no estado"}
-      </Text>
-    );
-  }
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator size="large" color="#00A63E" />
+    </View>
+  );
+}
 
   const shortName = user?.nome
     ?.split(' ')

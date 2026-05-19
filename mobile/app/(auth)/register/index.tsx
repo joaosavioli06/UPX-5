@@ -62,12 +62,14 @@ export default function Register() {
                 <View style={styles.container}>
                     <View style={styles.content}>
                         <View style={styles.header}>
-                            <TouchableOpacity onPress={() => router.back()}>
-                                <Text style={styles.backArrow}>←</Text>
+                            <TouchableOpacity
+                                onPress={() => router.back()}
+                                style={styles.backButton}
+                            >
+                                <Ionicons name="arrow-back" size={24} color="#111827" />
                             </TouchableOpacity>
 
                             <Text style={styles.headerTitle}>Cadastro</Text>
-                            <View style={styles.side} />
                         </View>
 
                         <Text style={styles.title}>Crie sua conta</Text>
@@ -156,13 +158,11 @@ const styles = StyleSheet.create({
         borderBottomColor: '#E5E7EB',
         paddingBottom: 10,
         marginBottom: 16,
+        marginTop: 20,
     },
-    side: {
-        width: 40,
+    backButton: {
+        justifyContent: 'center',
         alignItems: 'center',
-    },
-    backArrow: {
-        fontSize: 20,
     },
     headerTitle: {
         fontSize: 18,

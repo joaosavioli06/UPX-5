@@ -3,6 +3,7 @@ import { useState } from "react";
 import ProgressBar from "@/components/progressBar";
 import { useRouter } from "expo-router";
 import { useRegister } from "@/contexts/RegisterContext"; // Importação correta[cite: 2]
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Preference() {
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -12,60 +13,60 @@ export default function Preference() {
     const { data } = useRegister(); // Acesso aos dados do contexto[cite: 2]
 
     // Função para enviar os dados ao seu Backend no Firebase
-async function handleFinalize() {
-    setLoading(true);
-    // 1. Criamos uma referência limpa para os dados do contexto
-    const registerData = data as any;
+    async function handleFinalize() {
+        setLoading(true);
+        // 1. Criamos uma referência limpa para os dados do contexto
+        const registerData = data as any;
 
-    try {
-        const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                // 2. Campos principais que o Controller desestrutura primeiro
-                nome: registerData.nome,
-                email: registerData.email,
-                password: registerData.password,
-                tipo_perfil: registerData.tipo_perfil || 'morador',
-                codigoAcesso: registerData.codigoAcesso || '',
-                
-                // 3. O objeto userData deve conter EXATAMENTE o que o Service usa
-                userData: {
-                    cpf: registerData.cpf,
-                    telefone: registerData.telefone,
-                    unit: registerData.unit,        // Vem do unit.tsx
-                    type: registerData.type,        // Vem do unit.tsx
-                    hasVehicle: registerData.hasVehicle,
-                    plate: registerData.plate,
-                    model: registerData.model,
-                    color: registerData.color,
-                    preferencias: selectedOptions   // Opções marcadas nesta tela
-                }
-            }), 
-        });
+        try {
+            const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    // 2. Campos principais que o Controller desestrutura primeiro
+                    nome: registerData.nome,
+                    email: registerData.email,
+                    password: registerData.password,
+                    tipo_perfil: registerData.tipo_perfil || 'morador',
+                    codigoAcesso: registerData.codigoAcesso || '',
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Erro no servidor');
-        }
+                    // 3. O objeto userData deve conter EXATAMENTE o que o Service usa
+                    userData: {
+                        cpf: registerData.cpf,
+                        telefone: registerData.telefone,
+                        unit: registerData.unit,        // Vem do unit.tsx
+                        type: registerData.type,        // Vem do unit.tsx
+                        hasVehicle: registerData.hasVehicle,
+                        plate: registerData.plate,
+                        model: registerData.model,
+                        color: registerData.color,
+                        preferencias: selectedOptions   // Opções marcadas nesta tela
+                    }
+                }),
+            });
 
-        const result = await response.json();
-
-        // 4. Navega para a confirmação passando os dados para exibir no resumo
-        router.push({
-            pathname: '/register/confirm',
-            params: { 
-                nome: registerData.nome,
-                unit: registerData.unit 
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erro no servidor');
             }
-        });
 
-    } catch (error: any) {
-        Alert.alert("Erro no Cadastro", error.message);
-    } finally {
-        setLoading(false);
+            const result = await response.json();
+
+            // 4. Navega para a confirmação passando os dados para exibir no resumo
+            router.push({
+                pathname: '/register/confirm',
+                params: {
+                    nome: registerData.nome,
+                    unit: registerData.unit
+                }
+            });
+
+        } catch (error: any) {
+            Alert.alert("Erro no Cadastro", error.message);
+        } finally {
+            setLoading(false);
+        }
     }
-}
 
     function toggleOption(option: string) {
         if (selectedOptions.includes(option)) {
@@ -87,11 +88,14 @@ async function handleFinalize() {
                     keyboardShouldPersistTaps="handled"
                 >
                     <View style={styles.header}>
-                        <TouchableOpacity onPress={() => router.back()}>
-                            <Text style={styles.backArrow}>←</Text>
+                        <TouchableOpacity
+                            onPress={() => router.back()}
+                            style={styles.backButton}
+                        >
+                            <Ionicons name="arrow-back" size={24} color="#111827" />
                         </TouchableOpacity>
+
                         <Text style={styles.headerTitle}>Cadastro</Text>
-                        <View style={styles.side} />
                     </View>
 
                     <ProgressBar step={4} total={4} />
@@ -152,10 +156,10 @@ async function handleFinalize() {
                     <TouchableOpacity
                         style={[styles.buttonContinue, loading && { opacity: 0.6 }]}
                         onPress={handleFinalize} // Chama a nova função de envio
-                        disabled={loading} 
+                        disabled={loading}
                     >
                         <Text style={styles.textContinue}>
-                             {loading ? "Enviando..." : "Finalizar"} 
+                            {loading ? "Enviando..." : "Finalizar"}
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -181,13 +185,11 @@ const styles = StyleSheet.create({
         borderBottomColor: '#E5E7EB',
         paddingBottom: 10,
         marginBottom: 16,
+        marginTop: 20,
     },
-    side: {
-        width: 40,
+    backButton: {
+        justifyContent: 'center',
         alignItems: 'center',
-    },
-    backArrow: {
-        fontSize: 20,
     },
     headerTitle: {
         fontSize: 18,

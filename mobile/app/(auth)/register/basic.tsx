@@ -3,6 +3,7 @@ import ProgressBar from "@/components/progressBar";
 import { useRegister } from "@/contexts/RegisterContext";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Basic() {
     const router = useRouter();
@@ -21,12 +22,12 @@ export default function Basic() {
             const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/check', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    cpf, 
+                body: JSON.stringify({
+                    cpf,
                     telefone: phone // Enviamos o phone do estado como 'telefone' para o back
                 })
             });
-            
+
             const result = await response.json();
 
             if (result.exists) {
@@ -35,11 +36,11 @@ export default function Basic() {
             }
 
             // Se nada estiver duplicado, segue o fluxo
-            setData({ 
-                cpf, 
-                telefone: phone 
+            setData({
+                cpf,
+                telefone: phone
             } as any);
-            
+
             router.push('/register/unit');
 
         } catch (error) {
@@ -73,13 +74,14 @@ export default function Basic() {
                 <View style={styles.content}>
 
                     <View style={styles.header}>
-                        <TouchableOpacity onPress={() => router.back()}>
-                            <Text style={styles.backArrow}>←</Text>
+                        <TouchableOpacity
+                            onPress={() => router.back()}
+                            style={styles.backButton}
+                        >
+                            <Ionicons name="arrow-back" size={24} color="#111827" />
                         </TouchableOpacity>
 
                         <Text style={styles.headerTitle}>Cadastro</Text>
-
-                        <View style={styles.side} />
                     </View>
 
                     <ProgressBar step={1} total={4} />
@@ -138,11 +140,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 20,
     },
-
     content: {
         flex: 1,
     },
-
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -151,36 +151,28 @@ const styles = StyleSheet.create({
         borderBottomColor: '#E5E7EB',
         paddingBottom: 10,
         marginBottom: 16,
+        marginTop: 20,
     },
-
-    side: {
-        width: 40,
+    backButton: {
+        justifyContent: 'center',
         alignItems: 'center',
     },
-
-    backArrow: {
-        fontSize: 20,
-    },
-
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         justifyContent: 'center',
     },
-
     title: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
         marginTop: 32,
     },
-
     subTitle: {
         fontSize: 16,
         color: '#4A5565',
         marginBottom: 20,
     },
-
     label: {
         fontSize: 14,
         fontWeight: 'medium',
@@ -188,7 +180,6 @@ const styles = StyleSheet.create({
         marginTop: 16,
         color: '#364153',
     },
-
     input: {
         borderWidth: 1,
         borderColor: '#D1D5DB',
@@ -197,20 +188,17 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         marginTop: 8,
     },
-
     info: {
         fontSize: 12,
         color: '#6A7282',
         marginBottom: 10,
     },
-
     buttonContinue: {
         backgroundColor: '#00A63E',
         padding: 15,
         borderRadius: 14,
         marginTop: 87,
     },
-
     buttonText: {
         color: '#FFFFFF',
         textAlign: 'center',
