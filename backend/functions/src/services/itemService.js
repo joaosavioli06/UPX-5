@@ -18,7 +18,7 @@ const registrarDescarte = async (uidUsuario, dadosItem) => {
       morador_id: uidUsuario,         
       categoria: dadosItem.categoria || '', 
       nome_item: dadosItem.nome || '',      
-      status: 'aguardando_coleta',   
+      status: 'Pendente',   
       foto_url: dadosItem.foto_url || '',   
       ia_confianca: 0,                
       data_registro: admin.firestore.FieldValue.serverTimestamp(), 

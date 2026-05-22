@@ -5,20 +5,21 @@ const { sendSuccess, sendError } = require('../utils/responseHandler'); // Utils
 
 const registrarNovoItem = async (req, res) => {
   try {
-    const { tipo_material, descricao, imagem_url } = req.body;
-    const uid_usuario = req.user.uid; // Pego pelo middleware de autenticação que fizemos
+    const { tipo_material, nome_item, observacoes, imagem_url } = req.body;
+    const uid_usuario = req.user.uid; 
 
-    if (!tipo_material || !imagem_url) {
-      return res.status(400).json({ error: 'Tipo de material e imagem são obrigatórios.' });
+    if (!tipo_material || !nome_item) {
+      return res.status(400).json({ error: 'O nome do item e o tipo de material são obrigatórios.' });
     }
 
     const novoItem = {
       uid_usuario,
+      nome_item, 
       tipo_material,
-      descricao: descricao || "",
-      imagem_url,
-      status: 'pendente', // Aguardando aprovação do Síndico
-      pontos_gerados: 10, // Pontuação padrão para teste
+      descricao: observacoes || "", 
+      imagem_url: imagem_url || null, 
+      status: 'pendente', 
+      pontos_gerados: 10, 
       criado_em: FieldValue.serverTimestamp(),
     };
 
@@ -26,7 +27,8 @@ const registrarNovoItem = async (req, res) => {
 
     res.status(201).json({
       message: 'Descarte registrado com sucesso! Aguarde a validação.',
-      id_item: docRef.id
+      id_item: docRef.id,
+      tokenQR: docRef.id // Injeta o ID aqui caso o seu app espere ler "result.tokenQR"
     });
   } catch (error) {
     console.error(`[ItemController] Erro: ${error.message}`);
