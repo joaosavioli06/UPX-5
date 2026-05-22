@@ -6,6 +6,8 @@ import { useDiscard } from "@/contexts/DiscardContext";
 import { useAuth } from "@/contexts/AuthContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 
 export default function Manual() {
     const { data, updateData } = useDiscard();
@@ -18,6 +20,19 @@ export default function Manual() {
     const [itemNameError, setItemNameError] = useState(false);
 
     const [images, setImages] = useState<string[]>([]);
+
+    useFocusEffect(
+        useCallback(() => {
+            // Toda vez que o usuário entrar nessa tela, o estado global limpa do zero
+            updateData({
+                itemName: '',
+                category: '',
+                observations: ''
+            });
+            // E limpa também a lista local de fotos selecionadas
+            setImages([]);
+        }, [])
+    );
 
     const categories = [
         'Eletrônico',
@@ -87,7 +102,7 @@ export default function Manual() {
     // LOG 1: Verificar o que está sendo enviado (Payload)
     const payload = {
         nome_item: data.itemName,
-        categoria: data.category,
+        tipo_material: data.category, // era categoria
         observacoes: data.observations,
         morador_id: user?.uid,
         status: "Pendente"

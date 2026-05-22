@@ -1,11 +1,23 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useDiscard } from "@/contexts/DiscardContext";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function Confirm() {
-    const { data } = useDiscard();
-
+export default function Registered() {
     const router = useRouter();
+    const { data, updateData } = useDiscard(); 
+
+  
+    function handleNavigation(targetRoute: string) {
+        // Zera os itens preenchidos
+        updateData({
+            itemName: '',
+            category: '',
+            observations: ''
+        });
+        
+        router.replace(targetRoute as any); 
+    }
 
     return (
         <View style={styles.container}>
@@ -16,7 +28,7 @@ export default function Confirm() {
 
                 <Text style={styles.title}>Item registrado!</Text>
                 <Text style={styles.subtitle}>
-                    O descarte foi registrado com sucesso.
+                    O descarte foi registrado com sucesso.{"\n"}
                     Em breve será processado pela equipe.
                 </Text>
 
@@ -46,13 +58,17 @@ export default function Confirm() {
                 </View>
 
                 <View style={styles.buttons}>
+                    {/* 🌟 CORREÇÃO 1: Limpa os dados e leva para a aba de listagem */}
                     <TouchableOpacity
-                        style={styles.primaryButton}>
+                        style={styles.primaryButton}
+                        onPress={() => handleNavigation('/(tabs)/myDiscards')} // Ajuste se o nome do arquivo for diferente
+                    >
                         <Text style={styles.primaryText}>Ver meus descartes</Text>
                     </TouchableOpacity>
 
+                    {/* 🌟 CORREÇÃO 2: Vinculado para limpar os dados ao clicar em Voltar ao Início */}
                     <TouchableOpacity
-                        onPress={() => router.push('/(tabs)')}
+                        onPress={() => handleNavigation('/(tabs)/home')} // Garante o reset antes de ir para a Home
                     >
                         <Text style={styles.link}>Voltar ao início</Text>
                     </TouchableOpacity>
