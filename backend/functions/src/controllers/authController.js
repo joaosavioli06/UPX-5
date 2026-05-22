@@ -61,11 +61,10 @@ const checkExistence = async (req, res) => {
     const { email, cpf, telefone } = req.body;
     let exists = false;
     let message = "";
-
-    // 1. Checagem de E-mail (Authentication E no Firestore)
+  
+    // 1. Checagem de E-mail
     if (email) {
       try {
-        // Firebase Authentication
         await admin.auth().getUserByEmail(email);
         exists = true;
         message = "Este e-mail já está em uso na portaria do sistema.";
@@ -78,37 +77,44 @@ const checkExistence = async (req, res) => {
       }
     } 
     
-    // Checagem de CPF
-    else if (cpf) {
+    // 2. Checagem de CPF 
+    if (cpf && !exists) { 
       const snapshot = await admin.firestore().collection('usuarios').where('cpf', '==', cpf).get();
       if (!snapshot.empty) {
         exists = true;
         message = "Este CPF já está cadastrado.";
       }
     }
-
-  else if (telefone) {
   
-  const telefoneLimpo = telefone.replace(/\D/g, ''); 
+    // 3. Checagem de Telefone 
+   if (telefone && !exists) {
+      const telefoneLimpo = telefone.replace(/\D/g, ''); 
 
-  const snapshot = await admin.firestore().collection('usuarios').get();
-  
-  const existeDuplicado = snapshot.docs.some(doc => {
-    const telBanco = doc.data().telefone || "";
-    return telBanco.replace(/\D/g, '') === telefoneLimpo;
-  });
+      // Busca na raiz
+      const snapshotRaiz = await admin.firestore()
+        .collection('usuarios')
+        .where('telefone', '==', telefoneLimpo)
+        .get();
 
-  if (existeDuplicado) {
-    exists = true;
-    message = "Este telefone já está cadastrado.";
-  }
-}
+      // Busca dentro do objeto preferências
+      const snapshotPreferencias = await admin.firestore()
+        .collection('usuarios')
+        .where('preferencias.telefone', '==', telefoneLimpo)
+        .get();
+
+      // Se achar em QUALQUER um dos dois caminhos
+      if (!snapshotRaiz.empty || !snapshotPreferencias.empty) {
+        exists = true;
+        message = "Este telefone já está cadastrado.";
+      }
+    }
 
     return res.status(200).json({ exists, message });
+    
   } catch (error) {
     console.error('Erro na checagem:', error);
     return res.status(500).json({ error: 'Erro interno ao validar dados.' });
-  }
-};
+  } 
+}; 
 
 module.exports = {register, login, checkExistence};

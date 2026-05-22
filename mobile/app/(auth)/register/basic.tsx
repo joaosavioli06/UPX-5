@@ -17,6 +17,10 @@ export default function Basic() {
             return Alert.alert("Campos obrigatórios", "Por favor, preencha o CPF e o Telefone.");
         }
 
+        console.log("📱 [Front-end] CPF digitado no estado:", cpf);
+        console.log("📱 [Front-end] Telefone digitado no estado (com máscara):", phone);
+        console.log("📱 [Front-end] Telefone limpo (que deveria ir pro banco):", phone.replace(/\D/g, ''));
+
         try {
             // Verificação de duplicidade (CPF e Telefone)
             const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/check', {
