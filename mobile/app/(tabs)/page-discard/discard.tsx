@@ -32,7 +32,7 @@ export default function Discard() {
 
                     <View style={styles.cards}>
                         <TouchableOpacity
-                            onPress={() => router.push('/cameraIA')}
+                            onPress={() => router.push('/page-discard/cameraIA')}
                             style={styles.discardCard}
                         >
                             <View style={styles.boxGreen}>
@@ -76,7 +76,7 @@ export default function Discard() {
                         </TouchableOpacity> */}
 
                         <TouchableOpacity
-                            onPress={() => router.push('/manual')}
+                            onPress={() => router.push('/page-discard/manual')}
                             style={styles.discardCard}
                         >
                             <View style={styles.boxPurple}>
@@ -99,7 +99,7 @@ export default function Discard() {
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            onPress={() => router.push('/myDiscards')}
+                            onPress={() => router.push('/page-discard/myDiscards')}
                             style={styles.discardCard}
                         >
                             <View style={styles.boxOrange}>

@@ -73,7 +73,7 @@ export default function CameraIA() {
                         </View>
 
                         <TouchableOpacity
-                            onPress={() => router.push('/manual')}
+                            onPress={() => router.push('/page-discard/manual')}
                             style={styles.manualButton}>
                             <Text style={styles.manualText}>
                                 Preencher manualmente

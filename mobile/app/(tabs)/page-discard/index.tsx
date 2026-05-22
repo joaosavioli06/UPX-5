@@ -96,7 +96,7 @@ export default function Home() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.push('/discard')}
+          onPress={() => router.push('/page-discard/discard')}
           style={styles.gridCard}
         >
           <Ionicons name="trash-outline" size={36} color={'#374151'} />

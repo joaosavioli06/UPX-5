@@ -31,7 +31,9 @@ export default function Login() {
                 <Text style={styles.secondaryText}>Criar conta</Text>
             </TouchableOpacity>
 
-            <Text style={styles.link}>Acesso para síndicos →</Text>
+            <Text 
+            onPress={() => router.push('/(tabs)/page-syndic')}
+            style={styles.link}>Acesso para síndicos →</Text>
         </View>
     );
 }
