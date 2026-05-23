@@ -46,15 +46,15 @@ const cadastrarUsuario = async (nome, email, password, tipo_perfil, codigoAcesso
     status: 'ativo',
   
     cpf: userData?.cpf || '', 
-    telefone: userData?.telefone.replace(/\D/g, '') || '',
-    unidade: userData.unit || '',
-    tipo_moradia: userData.type || '',
+    telefone: userData?.telefone?.replace(/\D/g, '') || '',
+    unidade: userData?.unit || '',
+    tipo_moradia: userData?.type || '',
 
     veiculo: {
-    possui: userData.hasVehicle === true,
-    placa: userData.plate || '',
-    modelo: userData.model || '',
-    color: userData.color || ''
+    possui: userData?.hasVehicle === true,
+    placa: userData?.plate || '',
+    modelo: userData?.model || '',
+    color: userData?.color || ''
   },
 
   
