@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
+    const [showChave, setShowChave] = useState(false);
 
     const router = useRouter();
     const { setData } = useRegister();
@@ -14,44 +15,61 @@ export default function Register() {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [chaveSindico, setChaveSindico] = useState('');
 
     async function handleContinue() {
-    // 1. Mantemos sua validação local de campos vazios
-    if (!nome || !email || !password) {
-        alert("Por favor, preencha todos os campos.");
-        return;
-    }
-
-    try {
-        // 2. Adicionamos a trava: pergunta para a API se o e-mail já existe
-        const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/check', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }) 
-        });
-
-        const result = await response.json();
-
-        // 3. Se a API disser que já existe, paramos aqui e avisamos o usuário
-        if (result.exists) {
-            alert("Este e-mail já está em uso. Por favor, escolha outro.");
+        if (!nome || !email || !password) {
+            alert("Por favor, preencha todos os campos.");
             return;
         }
 
-        // 4. SE PASSOU NA VALIDAÇÃO: Executa o que você já tinha antes
-        setData({
-            nome,
-            email,
-            password
-        } as any);
+        try {
+            const checkResponse = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const checkResult = await checkResponse.json();
 
-        router.push('/register/basic');
+            if (checkResult.exists) {
+                alert("Este e-mail já está em uso. Por favor, escolha outro.");
+                return;
+            }
 
-    } catch (error) {
-        // Se a internet cair ou a API falhar, avisamos para tentar de novo
-        alert("Erro ao validar dados. Verifique sua conexão.");
+            if (chaveSindico.trim() !== '') {
+                const sindicoResponse = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nome,
+                        email,
+                        password,
+                        tipo_perfil: 'sindico',
+                        codigoAcesso: chaveSindico,
+                        userData: {
+                            telefone: ''
+                        }
+                    })
+                });
+
+                const sindicoResult = await sindicoResponse.json();
+
+                if (!sindicoResponse.ok) {
+                    alert(sindicoResult.error || "Chave inválida. Verifique e tente novamente.");
+                    return;
+                }
+
+                router.replace('/(tabs)/page-syndic');
+                return;
+            }
+
+            setData({ nome, email, password } as any);
+            router.push('/register/basic');
+
+        } catch (error) {
+            alert("Erro ao validar dados. Verifique sua conexão.");
+        }
     }
-}
 
     return (
         <>
@@ -112,7 +130,7 @@ export default function Register() {
 
                             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                 <Ionicons
-                                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                    name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                                     size={22}
                                     color="#6B7280"
                                 />
@@ -120,6 +138,28 @@ export default function Register() {
                         </View>
 
                         <Text style={styles.info}>Mínimo de 8 caracteres</Text>
+
+                        <Text style={styles.label}>Você é síndico? (opcional)</Text>
+                        <View style={styles.passwordContainer}>
+                            <TextInput
+                                placeholder="Digite sua chave"
+                                style={styles.passwordInput}
+                                autoCapitalize="none"
+                                value={chaveSindico}
+                                onChangeText={setChaveSindico}
+                                autoCorrect={false}
+                                secureTextEntry={!showChave}
+                            />
+                            <TouchableOpacity onPress={() => setShowChave(!showChave)}>
+                                <Ionicons
+                                    name={showChave ? 'eye-outline' : 'eye-off-outline'}
+                                    size={22}
+                                    color="#6B7280"
+                                />
+                            </TouchableOpacity>
+                        </View>
+
+                        <Text style={styles.info}>Se sim, digite sua chave</Text>
 
                         <TouchableOpacity
                             style={styles.buttonCreate}

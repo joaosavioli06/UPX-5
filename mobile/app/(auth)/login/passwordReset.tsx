@@ -42,7 +42,7 @@ export default function PasswordReset() {
 
                             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                 <Ionicons
-                                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                    name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                                     size={22}
                                     color="#6B7280"
                                 />
@@ -61,7 +61,7 @@ export default function PasswordReset() {
 
                             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                 <Ionicons
-                                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                    name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                                     size={22}
                                     color="#6B7280"
                                 />

@@ -102,7 +102,7 @@ export default function Access() { // Corrigido de Acess para Access
 
                             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                 <Ionicons
-                                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                    name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                                     size={22}
                                     color="#6B7280"
                                 />
