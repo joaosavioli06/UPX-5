@@ -14,14 +14,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 const authRoutes = require('./src/routes/authRoutes');
 const itemRoutes = require('./src/routes/itemRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
-// const iaRoutes = require('./src/routes/iaRoutes'); "Tirar comentario para usar a IA"
+const iaRoutes = require('./src/routes/iaRoutes'); 
 const globalErrorHandler = require('./src/middlewares/errorMiddleware');
 
 // Definição dos Endpoints
 app.use('/api/auth', authRoutes);
 app.use('/api/itens', itemRoutes);
 app.use('/api/admin', adminRoutes);
-// app.use('/api/ia', iaRoutes); "Tirar comentario para usar a IA"
+app.use('/api/ia', iaRoutes);
 
 // Middleware de Erro 
 app.use(globalErrorHandler);
