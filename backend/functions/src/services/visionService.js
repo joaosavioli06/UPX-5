@@ -1,5 +1,8 @@
 const axios = require('axios');
 
+// ============================================================
+// Mapa de categorias: palavras-chave detectadas → tipo_material
+// ============================================================
 const MATERIAL_MAP = {
   // PLÁSTICO
   plastico: [
@@ -52,6 +55,9 @@ const MATERIAL_MAP = {
   ]
 };
 
+// ============================================================
+// Classifica os labels retornados pela Vision API
+// ============================================================
 const classificarMaterial = (labels) => {
   const labelsLower = labels.map(l => l.description.toLowerCase());
 
@@ -62,6 +68,7 @@ const classificarMaterial = (labels) => {
     for (const label of labels) {
       const descricao = label.description.toLowerCase();
       if (palavrasChave.some(kw => descricao.includes(kw))) {
+        // Usa o score da Vision como confiança
         if (label.score > melhorConfianca) {
           melhorConfianca = label.score;
           melhorCategoria = categoria;
@@ -72,11 +79,14 @@ const classificarMaterial = (labels) => {
 
   return {
     tipo_material: melhorCategoria,
-    confianca: Math.round(melhorConfianca * 100), 
-    labels_detectados: labelsLower.slice(0, 10) //debug
+    confianca: Math.round(melhorConfianca * 100), // ex: 87 (%)
+    labels_detectados: labelsLower.slice(0, 10)   // top 10 para debug
   };
 };
 
+// ============================================================
+// Chama a Google Cloud Vision API com a imagem em base64
+// ============================================================
 const analisarImagem = async (imagemBase64) => {
   try {
     const API_KEY = process.env.GOOGLE_VISION_API_KEY;
@@ -91,7 +101,7 @@ const analisarImagem = async (imagemBase64) => {
       requests: [
         {
           image: {
-            content: imagemBase64
+            content: imagemBase64 // Base64 sem o prefixo "data:image/..."
           },
           features: [
             { type: 'LABEL_DETECTION', maxResults: 20 },
@@ -108,6 +118,7 @@ const analisarImagem = async (imagemBase64) => {
 
     const resultado = response.data.responses[0];
 
+    // Combina labels de LABEL_DETECTION e OBJECT_LOCALIZATION
     const labelAnnotations = resultado.labelAnnotations || [];
     const objectAnnotations = (resultado.localizedObjectAnnotations || []).map(obj => ({
       description: obj.name,
@@ -144,6 +155,9 @@ const analisarImagem = async (imagemBase64) => {
   }
 };
 
+// ============================================================
+// Gera mensagem amigável para o usuário mobile
+// ============================================================
 const gerarMensagem = (tipo, confianca) => {
   const nomes = {
     plastico: 'Plástico ♻️',
