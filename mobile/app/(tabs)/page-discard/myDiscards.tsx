@@ -25,7 +25,7 @@ export default function MyDiscards() {
                             <Ionicons name="arrow-back" size={24} color="#111827" />
                         </TouchableOpacity>
 
-                        <Text style={styles.headerTitle}>Meus Descarte</Text>
+                        <Text style={styles.headerTitle}>Meus Descartes</Text>
                     </View>
 
                     <View style={styles.discardStatus}>

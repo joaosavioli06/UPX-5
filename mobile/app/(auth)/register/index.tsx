@@ -159,7 +159,7 @@ export default function Register() {
                             </TouchableOpacity>
                         </View>
 
-                        <Text style={styles.info}>Se sim, digite sua chave</Text>
+                        <Text style={styles.info}>Informe sua chave</Text>
 
                         <TouchableOpacity
                             style={styles.buttonCreate}
