@@ -5,9 +5,9 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function Registered() {
     const router = useRouter();
-    const { data, updateData } = useDiscard(); 
+    const { data, updateData } = useDiscard();
 
-  
+
     function handleNavigation(targetRoute: string) {
         // Zera os itens preenchidos
         updateData({
@@ -15,8 +15,8 @@ export default function Registered() {
             category: '',
             observations: ''
         });
-        
-        router.replace(targetRoute as any); 
+
+        router.replace(targetRoute as any);
     }
 
     return (
@@ -61,16 +61,23 @@ export default function Registered() {
                     {/* 🌟 CORREÇÃO 1: Limpa os dados e leva para a aba de listagem */}
                     <TouchableOpacity
                         style={styles.primaryButton}
-                        onPress={() => handleNavigation('/page-discard/myDiscards')} // Ajuste se o nome do arquivo for diferente
+                        onPress={() => handleNavigation('/page-discard/myDiscards')}
                     >
-                        <Text style={styles.primaryText}>Ver meus descartes</Text>
+                        <Text style={styles.primaryText}>
+                            Ver meus descartes
+                        </Text>
                     </TouchableOpacity>
 
                     {/* 🌟 CORREÇÃO 2: Vinculado para limpar os dados ao clicar em Voltar ao Início */}
                     <TouchableOpacity
-                        onPress={() => handleNavigation('/(tabs)/page-discard')} // Garante o reset antes de ir para a Home
+                        onPress={() => handleNavigation('/(tabs)/home')} // Garante o reset antes de ir para a Home
                     >
-                        <Text style={styles.link}>Voltar ao início</Text>
+                        <Text
+                            onPress={() => router.push('/page-discard')}
+                            style={styles.link}
+                        >
+                            Voltar ao início
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -86,7 +93,7 @@ const styles = StyleSheet.create({
     },
     content: {
         alignItems: 'center',
-        marginTop: '30%',
+        marginTop: '20%',
     },
     iconContainer: {
         width: 90,

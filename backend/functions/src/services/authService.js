@@ -89,7 +89,7 @@ const loginUsuario = async (email, password) => {
         const authResponse = await axios.post(authUrl, {
             email,
             password,
-            returnSecureToken: true
+            returnSecureToken: true,
         });
 
         const uid = authResponse.data.localId;
@@ -111,7 +111,8 @@ const loginUsuario = async (email, password) => {
             { 
                 uid: uid, 
                 email: dadosUsuario.email, 
-                role: dadosUsuario.role // 
+                role: dadosUsuario.role,
+                is_admin: dadosUsuario.is_admin
             }, 
             JWT_SECRET,
             { expiresIn: '7d' } // Expira em 7 dias

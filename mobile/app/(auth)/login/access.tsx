@@ -38,8 +38,11 @@ export default function Access() { // Corrigido de Acess para Access
 
                 await signIn(result.usuario, result.token);
 
-                // Navegação para a Home
-                router.replace('/(tabs)/page-discard');
+                if (result.usuario.is_admin === true) {
+                    router.replace('/(tabs)/page-syndic');
+                } else {
+                    router.replace('/(tabs)/page-discard');
+                }
             } else {
 
                 Alert.alert("Erro no Login", result.error || "Credenciais inválidas.");

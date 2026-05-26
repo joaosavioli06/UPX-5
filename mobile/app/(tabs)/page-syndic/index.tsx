@@ -2,14 +2,50 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-nati
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@/contexts/AuthContext";
+import SyndicDiscardCard from "@/components/syndicDiscardCard";
 
 // Mock temporário — substituir por dados reais futuramente
-const MOCK_PENDENTES = 2;
-const MOCK_NOME = "Carlos Silva";
+const MOCK_PENDENTES = 1;
+const MOCK_DESCARTES: DiscardItem[] = [
+    {
+        id: 1,
+        nomeMorador: "Maria Santos",
+        unit: "Bloco B - Apto 202",
+        date: "19/04/2026",
+        status: "Pendente",
+    },
+    {
+        id: 2,
+        nomeMorador: "João da Silva",
+        unit: "Bloco A - Apto 101",
+        date: "18/04/2026",
+        status: "Aprovado",
+    },
+    {
+        id: 3,
+        nomeMorador: "Carlos Oliveira",
+        unit: "Bloco C - Apto 305",
+        date: "17/04/2026",
+        status: "Recusado",
+    },
+];
 
 type AbaType = "todos" | "pendentes" | "aprovados" | "recusados";
 
+type StatusType = "Pendente" | "Aprovado" | "Recusado";
+
+interface DiscardItem {
+    id: number;
+    nomeMorador: string;
+    unit: string;
+    date: string;
+    status: StatusType;
+}
+
 export default function Sindico() {
+    const { signOut } = useAuth();
+
     const router = useRouter();
     const [abaSelecionada, setAbaSelecionada] = useState<AbaType>("todos");
 
@@ -20,6 +56,29 @@ export default function Sindico() {
         { key: "recusados", label: "Recusados" },
     ];
 
+    const descartesFiltrados = MOCK_DESCARTES.filter((item) => {
+        if (abaSelecionada === "todos") {
+            return true;
+        }
+
+        if (abaSelecionada === "pendentes") {
+            return item.status === "Pendente";
+        }
+
+        if (abaSelecionada === "aprovados") {
+            return item.status === "Aprovado";
+        }
+
+        if (abaSelecionada === "recusados") {
+            return item.status === "Recusado";
+        }
+    })
+
+    async function handleLogout() {
+        await signOut();
+        router.replace('/(auth)/login');
+    }
+
     return (
         <ScrollView
             style={styles.container}
@@ -28,14 +87,16 @@ export default function Sindico() {
         >
             <View style={styles.header}>
                 <View style={styles.headerTop}>
-                    <View>
-                        <Text style={styles.headerLabel}>Bem-vindo(a),</Text>
-                        <Text style={styles.headerName}>{MOCK_NOME}</Text>
-                    </View>
-
-                    <TouchableOpacity style={styles.notificationButton}>
-                        <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
+                    <TouchableOpacity
+                        onPress={handleLogout}
+                        style={styles.backButton}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
                     </TouchableOpacity>
+
+                    <View>
+                        <Text style={styles.headerName}>Gestão de Moradores</Text>
+                    </View>
                 </View>
 
                 <View style={styles.pendentesCard}>
@@ -76,11 +137,26 @@ export default function Sindico() {
                     </TouchableOpacity>
                 ))}
             </ScrollView>
-            
+
             <View style={styles.listaContainer}>
-                <Text style={styles.listaPlaceholder}>
-                    Nenhum registro encontrado.
-                </Text>
+                {descartesFiltrados.length > 0 ? (
+                    descartesFiltrados.map((item) => (
+                        <SyndicDiscardCard
+                            key={item.id}
+                            nomeMorador={item.nomeMorador}
+                            unit={item.unit}
+                            date={item.date}
+                            status={item.status}
+                            onApprove={() => console.log("Aprovado")}
+                            onReject={() => console.log("Recusado")}
+                            onDetails={() => console.log("Detalhes")}
+                        />
+                    ))
+                ) : (
+                    <Text style={styles.listaPlaceholder}>
+                        Nenhum registro encontrado.
+                    </Text>
+                )}
             </View>
         </ScrollView>
     );
@@ -102,8 +178,8 @@ const styles = StyleSheet.create({
     },
     headerTop: {
         flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
+        alignItems: "center",
+        justifyContent: "center",
     },
     headerLabel: {
         color: "#DCFCE7",
@@ -111,10 +187,11 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     headerName: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: "bold",
         color: "#FFFFFF",
         marginBottom: 10,
+        textAlign: "center",
     },
     notificationButton: {
         width: 40,
@@ -188,5 +265,11 @@ const styles = StyleSheet.create({
         color: "#9CA3AF",
         fontSize: 14,
         marginTop: 40,
+    },
+    backButton: {
+        position: "absolute",
+        left: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

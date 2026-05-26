@@ -32,7 +32,7 @@ export default function Login() {
             </TouchableOpacity>
 
             <Text 
-            onPress={() => router.push('/(tabs)/page-syndic')}
+            onPress={() => router.push('/(auth)/login/access')}
             style={styles.link}>Acesso para síndicos →</Text>
         </View>
     );
