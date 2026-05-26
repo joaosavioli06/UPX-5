@@ -8,28 +8,38 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
+import { initializeApp, getApps } from 'firebase/app';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+const firebaseConfig = {
+    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID
+};
+
+// Inicializa o Firebase no front-end caso ele já não tenha sido iniciado em outro lugar
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const storage = getStorage(app);
 
 export default function Manual() {
     const { data, updateData } = useDiscard();
-    const { user } = useAuth(); 
+    const { user } = useAuth();
 
-    // const [selectedCategory, setSelectedCategory] = useState('');
     const [categoryError, setCategoryError] = useState(false);
-
-    // const [itemName, setItemName] = useState('');
     const [itemNameError, setItemNameError] = useState(false);
-
     const [images, setImages] = useState<string[]>([]);
+    const [isUploading, setIsUploading] = useState(false); // Estado para loading do botão
 
     useFocusEffect(
         useCallback(() => {
-            // Toda vez que o usuário entrar nessa tela, o estado global limpa do zero
             updateData({
                 itemName: '',
                 category: '',
                 observations: ''
             });
-            // E limpa também a lista local de fotos selecionadas
             setImages([]);
         }, [])
     );
@@ -45,36 +55,42 @@ export default function Manual() {
 
     const isFormValid =
         data.itemName.trim() !== '' &&
-        data.category !== '';
-
+        data.category !== '' && !isUploading;
 
     const router = useRouter();
 
-    async function pickImage() {
+    function removeImage(uriToRemove: string) {
+        setImages(prevImages => prevImages.filter(uri => uri !== uriToRemove));
+    }
 
+    async function pickImage() {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            allowsMultipleSelection: true,
-            quality: 1,
+            allowsMultipleSelection: false,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.3, // Comprime a foto local deixando-a super leve
         });
 
         if (!result.canceled) {
-
-            const selectedImages = result.assets.map(
-                (asset) => asset.uri
-            );
-
-            setImages((prev) => [
-                ...prev,
-                ...selectedImages
-            ]);
+            setImages([result.assets[0].uri]);
         }
     }
 
-    function removeImage(uri: string) {
-        setImages((prev) =>
-            prev.filter((image) => image !== uri)
-        );
+    // 🌟 FUNÇÃO AUXILIAR: Envia a foto direto do celular para o bucket do Firebase Storage
+    async function uploadImageToStorage(localUri: string): Promise<string> {
+        const response = await fetch(localUri);
+        const blob = await response.blob(); // Transforma o arquivo em um blob binário aceito pelo Firebase
+        
+        const filename = `descartes/front_${Date.now()}.jpg`;
+        const storageRef = ref(storage, filename);
+        
+        // Faz o upload direto do dispositivo para a nuvem do Firebase
+        await uploadBytes(storageRef, blob);
+        
+        // Captura a URL pública gerada na hora
+        const downloadUrl = await getDownloadURL(storageRef);
+        return downloadUrl;
     }
 
     async function handleRegister() {
@@ -92,52 +108,57 @@ export default function Manual() {
 
         if (hasError) return;
 
-       try {
-        const token = await AsyncStorage.getItem('@TokenFlow:token');
-        if (!token) {
-            console.error("❌ Nenhum token encontrado no storage!");
-            return;
+        try {
+            setIsUploading(true);
+            const token = await AsyncStorage.getItem('@TokenFlow:token');
+            if (!token) {
+                console.error("❌ Nenhum token encontrado no storage!");
+                setIsUploading(false);
+                return;
             }
 
-    // LOG 1: Verificar o que está sendo enviado (Payload)
-    const payload = {
-        nome_item: data.itemName,
-        tipo_material: data.category, // era categoria
-        observacoes: data.observations,
-        morador_id: user?.uid,
-        status: "Pendente"
-    };
-    console.log("📤 Enviando descarte:", JSON.stringify(payload, null, 2));
+            let urlFinalDaFoto = "";
 
-    const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/itens/registrar', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
-            },
-            body: JSON.stringify(payload)
-    });
+            // 🌟 Se o usuário escolheu uma imagem, o upload é feito aqui na hora
+            if (images.length > 0) {
+                console.log("☁️ Iniciando upload direto para o Storage via Client...");
+                urlFinalDaFoto = await uploadImageToStorage(images[0]);
+                console.log("🔗 URL gerada com sucesso pelo celular:", urlFinalDaFoto);
+            }
 
-    // LOG 2: Verificar o status da resposta HTTP
-    console.log("📡 Status da Resposta:", response.status);
+            console.log("📤 Enviando formulário leve via JSON plano para o back-end...");
 
-    const result = await response.json();
+            // 🌟 Chamada HTTP pura usando JSON tradicional
+            const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/itens/registrar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    nome_item: data.itemName,
+                    tipo_material: data.category,
+                    observacoes: data.observations,
+                    imagem_url: urlFinalDaFoto // Enviado como texto puro! Sem FormData, sem erros de boundary.
+                })
+            });
 
-    if (response.ok) {
-        // LOG 3: Sucesso total
-        console.log("✅ Sucesso no Firestore! ID do Token:", result.tokenQR);
-        router.push('/registered');
-    } else {
-        // LOG 4: Erro de lógica do servidor (ex: validação falhou)
-        console.error("❌ Erro no Servidor (JSON):", result);
-        alert(`Erro: ${result.message || 'Falha ao registrar'}`);
-    }
-} catch (error) {
-    // LOG 5: Erro de rede ou crash (ex: URL errada ou servidor offline)
-    console.error("🚨 Erro crítico na requisição:", error);
-    alert("Não foi possível conectar ao servidor.");
-}
+            console.log("📡 Status da Resposta da API:", response.status);
+            const result = await response.json();
 
+            if (response.ok) {
+                console.log("✅ Cadastro efetuado com sucesso!");
+                router.push('/registered');
+            } else {
+                console.error("❌ Erro retornado pelo Servidor:", result);
+                alert(`Erro: ${result.error || 'Falha ao registrar'}`);
+            }
+        } catch (error: any) {
+            console.error("🚨 Erro crítico na execução:", error);
+            alert(`Erro na requisição: ${error?.message || error}`);
+        } finally {
+            setIsUploading(false);
+        }
     }
 
     return (
@@ -174,17 +195,13 @@ export default function Manual() {
                         ]}
                         value={data.itemName}
                         onChangeText={(text) => {
-                            updateData({
-                                itemName: text
-                            });
+                            updateData({ itemName: text });
                             setItemNameError(false);
                         }}
                     />
 
                     {itemNameError && (
-                        <Text style={styles.errorText}>
-                            Nome do item é obrigatório
-                        </Text>
+                        <Text style={styles.errorText}>Nome do item é obrigatório</Text>
                     )}
 
                     <Text style={styles.label}>Categoria *</Text>
@@ -194,43 +211,27 @@ export default function Manual() {
                                 key={category}
                                 style={[
                                     styles.categoryButton,
-                                    data.category === category &&
-                                    styles.categorySelected,
-                                    categoryError &&
-                                    !data.category &&
-                                    styles.categoryError
+                                    data.category === category && styles.categorySelected,
+                                    categoryError && !data.category && styles.categoryError
                                 ]}
                                 onPress={() => {
                                     if (data.category === category) {
-                                        updateData({
-                                            category: ''
-                                        });
+                                        updateData({ category: '' });
                                     } else {
-                                        updateData({
-                                            category: category
-                                        });
+                                        updateData({ category: category });
                                         setCategoryError(false);
                                     }
                                 }}
                             >
-                                <Text
-                                    style={[
-                                        styles.categoryText,
-                                        data.category === category &&
-                                        styles.categoryTextSelected
-                                    ]}
-                                >
+                                <Text style={[styles.categoryText, data.category === category && styles.categoryTextSelected]}>
                                     {category}
                                 </Text>
-
                             </TouchableOpacity>
                         ))}
                     </View>
 
                     {categoryError && (
-                        <Text style={styles.errorText}>
-                            Selecione uma categoria
-                        </Text>
+                        <Text style={styles.errorText}>Selecione uma categoria</Text>
                     )}
 
                     <Text style={styles.label}>Observações</Text>
@@ -241,58 +242,37 @@ export default function Manual() {
                         numberOfLines={4}
                         textAlignVertical="top"
                         value={data.observations}
-                        onChangeText={(text) => 
-                            updateData({
-                                observations: text
-                            })
-                        }
+                        onChangeText={(text) => updateData({ observations: text })}
                     />
 
                     <Text style={styles.label}>Foto (opcional)</Text>
 
                     <View style={styles.imagesContainer}>
                         {images.map((uri) => (
-                            <View
-                                key={uri}
-                                style={styles.imageWrapper}
-                            >
-                                <Image
-                                    source={{ uri }}
-                                    style={styles.previewImage}
-                                />
-
-                                <TouchableOpacity
-                                    style={styles.removeButton}
-                                    onPress={() => removeImage(uri)}
-                                >
-                                    <Text style={styles.removeText}>
-                                        ×
-                                    </Text>
+                            <View key={uri} style={styles.imageWrapper}>
+                                <Image source={{ uri }} style={styles.previewImage} />
+                                <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(uri)}>
+                                    <Text style={styles.removeText}>×</Text>
                                 </TouchableOpacity>
-
                             </View>
                         ))}
-                        <TouchableOpacity
-                            style={styles.uploadBox}
-                            onPress={pickImage}
-                        >
-                            <Text style={styles.plus}>+</Text>
-                            <Text style={styles.uploadText}>
-                                Adicionar foto
-                            </Text>
-                        </TouchableOpacity>
+                        {images.length === 0 && (
+                            <TouchableOpacity style={styles.uploadBox} onPress={pickImage}>
+                                <Text style={styles.plus}>+</Text>
+                                <Text style={styles.uploadText}>Adicionar foto</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
 
                     <View style={styles.button}>
                         <TouchableOpacity
-                            style={[
-                                styles.registerItem,
-                                !isFormValid && styles.registerItemDisabled
-                            ]}
+                            style={[styles.registerItem, !isFormValid && styles.registerItemDisabled]}
                             disabled={!isFormValid}
                             onPress={handleRegister}
                         >
-                            <Text style={styles.buttonText}>Registrar item</Text>
+                            <Text style={styles.buttonText}>
+                                {isUploading ? "Enviando Imagem..." : "Registrar item"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
