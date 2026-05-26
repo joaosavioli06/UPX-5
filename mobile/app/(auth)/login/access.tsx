@@ -21,6 +21,10 @@ export default function Access() { // Corrigido de Acess para Access
             return;
         }
 
+        console.log("\n====== 🔓 TENTATIVA DE LOGIN ======");
+        console.log(`📧 E-mail digitado: ${email}`);
+        console.log(`🔑 Senha fornecida: ${password ? "•••••••• (Preenchida)" : "(Vazia)"}`);
+
         setLoading(true);
         try {
             const response = await fetch('https://api-c5avejvdoq-uc.a.run.app/api/auth/login', {
@@ -29,10 +33,20 @@ export default function Access() { // Corrigido de Acess para Access
                 body: JSON.stringify({ email, password })
             });
 
+            // 📡 LOG 2: Registra a resposta HTTP crua do servidor
+            console.log("📡 Status da Resposta HTTP:", response.status);
+
             const result = await response.json();
             console.log("DADOS QUE CHEGARAM DO SERVIDOR:", JSON.stringify(result, null, 2));
 
             if (response.ok) {
+
+                console.log("✅ [AUTENTICADO] Login efetuado com sucesso!");
+                console.log(`👤 Nome do Usuário: ${result.usuario?.nome || "Não informado"}`);
+                console.log(`🪪 ID do Firebase (UID): ${result.usuario?.uid || result.usuario?.id}`);
+                console.log(`🏷️ Nível de Acesso (Role): ${result.usuario?.role || "Não mapeado"}`);
+                console.log(`🎫 Token JWT recebido: ${result.token ? "Sim (Inicia com: " + result.token.substring(0, 15) + "...)" : "Não"}`);
+                console.log("===================================\n");
 
                 console.log("Usuário logado:", result.usuario.nome);
 
@@ -45,9 +59,18 @@ export default function Access() { // Corrigido de Acess para Access
                 }
             } else {
 
+                console.warn("⚠️ [FALHA NO LOGIN] O servidor recusou as credenciais.");
+                console.warn(`❌ Código do Erro: ${response.status} - Mensagem da API: ${result.error || "Sem mensagem específica"}`);
+                console.log("===================================\n");
+
                 Alert.alert("Erro no Login", result.error || "Credenciais inválidas.");
             }
         } catch (error) {
+
+            console.error("🚨 [ERRO CRÍTICO] Falha total ao tentar alcançar a API!");
+            console.error(`💥 Detalhes do crash: ${(error as any)?.message || error}`);
+            console.log("===================================\n");
+
             Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor. Verifique sua internet.");
             console.error("[Login Error]:", error);
         } finally {

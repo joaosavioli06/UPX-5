@@ -1,10 +1,134 @@
-import { View, Text, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import DiscardCard from "@/components/discardCard";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface DiscardItem {
+    id: string;
+    nome_item?: string;
+    descricao?: string;
+    tipo_material?: string;
+    status?: string;
+    criado_em?: any;
+    dateString?: string;
+}
 
 export default function MyDiscards() {
     const router = useRouter();
+    const { user } = useAuth();
+    
+    const [allDiscards, setAllDiscards] = useState<DiscardItem[]>([]); 
+    const [filteredDiscards, setFilteredDiscards] = useState<DiscardItem[]>([]); 
+    const [activeFilter, setActiveFilter] = useState<'todos' | 'pendente' | 'coletado'>('todos');
+    const [loading, setLoading] = useState(true);
+    const [selectedItemId, setSelectedItemId] = useState<string | null>(null); // Controla qual item está selecionado para exclusão
+
+    // Busca os descartes do usuário no back-end (GET)
+    async function fetchMyDiscards() {
+        console.log("\n🔍 [Meus Descartes] Iniciando carregamento do histórico...");
+        console.log("👤 [Context Auth] Estado atual do objeto user:", JSON.stringify(user, null, 2));
+
+        if (!user?.uid) {
+            console.warn("⚠️ [Meus Descartes] Bloqueado: user.uid está indefinido ou nulo! Desligando o loading.");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const token = await AsyncStorage.getItem('@TokenFlow:token'); 
+            console.log(`🎫 [Storage] Token recuperado para listagem: ${token ? "Encontrado" : "NULO/VAZIO"}`);
+
+            const response = await fetch("https://api-c5avejvdoq-uc.a.run.app/api/itens/meus-itens", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` 
+                }
+            });
+
+            console.log(`📡 [API Response] Status recebido da listagem: ${response.status}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log(`✅ [API Success] Quantidade de itens retornados: ${data.length}`);
+                const formattedData = data.map((item: any) => {
+                    let dateStr = "Data indisponível";
+                    if (item.criado_em) {
+                        dateStr = new Date(item.criado_em).toLocaleDateString('pt-BR');
+                    }
+                    return {
+                        id: item.id,
+                        nome_item: item.nome_item,
+                        descricao: item.descricao,
+                        tipo_material: item.tipo_material,
+                        status: item.status,
+                        dateString: dateStr
+                    };
+                });
+
+                setAllDiscards(formattedData);
+            } else {
+                console.error("❌ [API Error] Detalhes do erro da listagem:", data);
+            }
+        } catch (error) {
+            console.error("🚨 [Meus Descartes] Falha crítica de conexão de rede:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // Exclui o descarte selecionado no back-end (DELETE)
+    async function handleDeleteItem() {
+        if (!selectedItemId) {
+            Alert.alert("Atenção", "Selecione um descarte da lista abaixo clicando nele antes de excluir.");
+            return;
+        }
+
+        try {
+            const token = await AsyncStorage.getItem('@TokenFlow:token');
+            
+            const response = await fetch(`https://api-c5avejvdoq-uc.a.run.app/api/itens/deletar/${selectedItemId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                Alert.alert("Sucesso", "O cadastro do descarte foi removido do sistema.");
+                setSelectedItemId(null); // Reseta a seleção
+                fetchMyDiscards(); // Recarrega a listagem atualizada direto do banco
+            } else {
+                Alert.alert("Erro", result.error || "Não foi possível excluir o item.");
+            }
+        } catch (error) {
+            console.error("Erro ao chamar endpoint de exclusão:", error);
+            Alert.alert("Erro", "Erro ao conectar ao servidor.");
+        }
+    }
+
+    // Filtragem local reativa ao clicar nos cards superiores de status
+    useEffect(() => {
+        if (activeFilter === 'todos') {
+            setFilteredDiscards(allDiscards);
+        } else {
+            setFilteredDiscards(
+                allDiscards.filter(item => item.status?.toLowerCase() === activeFilter)
+            );
+        }
+    }, [activeFilter, allDiscards]);
+
+    // Cálculos automáticos do totalizador de cards
+    const totalCount = allDiscards.length;
+    const pendingCount = allDiscards.filter(item => item.status?.toLowerCase() === 'pendente').length;
+    const collectedCount = allDiscards.filter(item => item.status?.toLowerCase() === 'coletado').length;
+
 
     return (
         <>
@@ -28,57 +152,83 @@ export default function MyDiscards() {
                         <Text style={styles.headerTitle}>Meus Descartes</Text>
                     </View>
 
+                    {/* STATUS CARDS - 🌟 Agora trocados para TouchableOpacity e exibindo os contadores dinâmicos */}
                     <View style={styles.discardStatus}>
-                        <View style={styles.totalDiscards}>
-                            <Text style={styles.totalText}>3</Text> {/* Puxar quantidade do back */}
+                        <TouchableOpacity 
+                            style={[styles.totalDiscards, activeFilter === 'todos' && { borderWidth: 2, borderColor: '#6366F1' }]}
+                            onPress={() => setActiveFilter('todos')}
+                        >
+                            <Text style={styles.totalText}>{totalCount}</Text>
                             <Text style={styles.totalLabel}>Total</Text>
-                        </View>
+                        </TouchableOpacity>
 
-                        <View style={styles.pendingDiscards}>
-                            <Text style={styles.pendingText}>2</Text> {/* Puxar quantidade do back */}
+                        <TouchableOpacity 
+                            style={[styles.pendingDiscards, activeFilter === 'pendente' && { borderWidth: 2, borderColor: '#F97316' }]}
+                            onPress={() => setActiveFilter('pendente')}
+                        >
+                            <Text style={styles.pendingText}>{pendingCount}</Text>
                             <Text style={styles.pendingLabel}>Pendentes</Text>
-                        </View>
+                        </TouchableOpacity>
 
-                        <View style={styles.collectedDiscards}>
-                            <Text style={styles.collectedText}>1</Text> {/* Puxar quantidade do back */}
+                        <TouchableOpacity 
+                            style={[styles.collectedDiscards, activeFilter === 'coletado' && { borderWidth: 2, borderColor: '#22C55E' }]}
+                            onPress={() => setActiveFilter('coletado')}
+                        >
+                            <Text style={styles.collectedText}>{collectedCount}</Text>
                             <Text style={styles.collectedLabel}>Coletados</Text>
-                        </View>
+                        </TouchableOpacity>
                     </View>
 
-                    {/* Foi criado um componente para estilização dos cards - VALORES MOCKADOS */}
-                    <DiscardCard
-                        title="Geladeira Brastemp Duplex"
-                        description="Funcionando parcialmente, porta amassada..."
-                        category="Eletrodoméstico"
-                        date="10/05/2025"
-                        status="Pendente"
-                    />
+                    {/* LISTA DINÂMICA COMPILADA */}
+                    {loading ? (
+                        <View style={{ marginTop: 40, alignItems: 'center' }}>
+                            <ActivityIndicator size="large" color="#6366F1" />
+                            <Text style={{ marginTop: 10, color: '#6B7280' }}>Carregando histórico...</Text>
+                        </View>
+                    ) : filteredDiscards.length === 0 ? (
+                        <Text style={{ textAlign: 'center', color: '#9CA3AF', marginTop: 40 }}>
+                            Nenhum descarte encontrado para esta categoria.
+                        </Text>
+                    ) : (
+                        filteredDiscards.map((item) => (
+                            <TouchableOpacity 
+                                key={item.id} 
+                                activeOpacity={0.8}
+                                onPress={() => setSelectedItemId(item.id === selectedItemId ? null : item.id)} // Seleciona/deseleciona o item
+                                style={[
+                                    selectedItemId === item.id && { borderWidth: 2, borderColor: '#E7000B', borderRadius: 16 }
+                                ]}
+                            >
+                                <DiscardCard
+                                    title={item.nome_item || "Sem título"}
+                                    description={item.descricao || "Sem observações."}
+                                    category={item.tipo_material || "Outro"}
+                                    date={item.dateString || ""}
+                                    status={(item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : "Pendente") as "Pendente" | "Coletado"}
+                                />
+                            </TouchableOpacity>
+                        ))
+                    )}
 
-                    <DiscardCard
-                        title="Notebook Dell Inspiron"
-                        description="Não liga mais. Bateria inclusa..."
-                        category="Eletrônico"
-                        date="08/05/2025"
-                        status="Pendente"
-                    />
-
-                    <DiscardCard
-                        title="Sofá de 3 lugares"
-                        description="Em bom estado, apenas manchas leves..."
-                        category="Móvel"
-                        date="01/05/2025"
-                        status="Coletado"
-                    />
-
-                    {/* Ainda não funcional, precisará de um endpoint próprio para exclusão */}
-                    <TouchableOpacity style={styles.buttonDelete}>
-                        <Text style={styles.buttonText}>Excluir cadastro</Text>
+                    {/* BOTÃO EXCLUIR - 🌟 Agora ativo e chamando a função handleDeleteItem */}
+                    <TouchableOpacity 
+                        style={[
+                            styles.buttonDelete, 
+                            !selectedItemId && { opacity: 0.5 } // Fica semi-transparente se nenhum item estiver selecionado
+                        ]}
+                        onPress={handleDeleteItem}
+                    >
+                        <Text style={styles.buttonText}>
+                            {selectedItemId ? "Excluir item selecionado" : "Excluir cadastro"}
+                        </Text>
                     </TouchableOpacity>
                 </ScrollView>
             </KeyboardAvoidingView>
         </>
     );
 }
+
+// Abaixo disso, mantenha o const styles exatamente como a Lívia montou!
 
 const styles = StyleSheet.create({
     container: {
