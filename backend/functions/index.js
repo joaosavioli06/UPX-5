@@ -3,8 +3,11 @@ const admin = require('firebase-admin');
 const express = require('express');
 const cors = require('cors');
 
-// Inicialização
-admin.initializeApp();
+// Inicialização do Firebase Admin SDK para acessar o Firestore e o Storage
+admin.initializeApp({
+  storageBucket: "token-flow-de66b.firebasestorage.app"
+});
+
 const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());

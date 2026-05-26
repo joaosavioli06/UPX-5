@@ -4,9 +4,17 @@ const itemController = require('../controllers/itemController');
 const { validateToken, validateRole } = require('../middlewares/authMiddleware');
 
 // Rota: Morador registra o descarte
-router.post('/registrar', validateToken, validateRole(['morador', 'sindico']), itemController.registrarNovoItem);
+router.post(
+  '/registrar', 
+  validateToken, 
+  validateRole(['morador', 'sindico']),
+  itemController.registrarNovoItem
+);
 
 // Rota: Usuário vê seu próprio histórico
 router.get('/meus-itens', validateToken, itemController.listarItensPorUsuario);
+
+// Rota: Morador exclui um descarte registrado
+router.delete('/deletar/:id_item', validateToken, itemController.excluirDescarte);
 
 module.exports = router;
