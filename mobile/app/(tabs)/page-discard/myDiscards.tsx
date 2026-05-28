@@ -42,6 +42,12 @@ export default function MyDiscards() {
             const token = await AsyncStorage.getItem('@TokenFlow:token'); 
             console.log(`🎫 [Storage] Token recuperado para listagem: ${token ? "Encontrado" : "NULO/VAZIO"}`);
 
+            if (!token) {
+            console.warn("⚠️ [Meus Descartes] Erro: Token não encontrado no Storage. Cancelando requisição.");
+            setLoading(false);
+            return;
+            }
+
             const response = await fetch("https://api-c5avejvdoq-uc.a.run.app/api/itens/meus-itens", {
                 method: "GET",
                 headers: {
@@ -113,22 +119,36 @@ export default function MyDiscards() {
         }
     }
 
-    // Filtragem local reativa ao clicar nos cards superiores de status
+    // ==========================================
+    // 1. FILTRAGEM LOCAL DOS CARDS DE STATUS
+    // ==========================================
     useEffect(() => {
         if (activeFilter === 'todos') {
-            setFilteredDiscards(allDiscards);
+        setFilteredDiscards(allDiscards);
         } else {
-            setFilteredDiscards(
-                allDiscards.filter(item => item.status?.toLowerCase() === activeFilter)
-            );
-        }
-    }, [activeFilter, allDiscards]);
+        setFilteredDiscards(
+            allDiscards.filter(item => item.status?.toLowerCase() === activeFilter)
+        );
+    }
+        }, [activeFilter, allDiscards]);
+
+    // ==========================================
+    // 2. DISPARO INICIAL DE BUSCA DA API
+    // ==========================================
+    useEffect(() => {
+    if (user?.uid) {
+        fetchMyDiscards();
+    } else {
+        setAllDiscards([]);
+        setFilteredDiscards([]);
+        setLoading(false);
+    }
+}, [user]);
 
     // Cálculos automáticos do totalizador de cards
     const totalCount = allDiscards.length;
     const pendingCount = allDiscards.filter(item => item.status?.toLowerCase() === 'pendente').length;
     const collectedCount = allDiscards.filter(item => item.status?.toLowerCase() === 'coletado').length;
-
 
     return (
         <>
@@ -152,7 +172,7 @@ export default function MyDiscards() {
                         <Text style={styles.headerTitle}>Meus Descartes</Text>
                     </View>
 
-                    {/* STATUS CARDS - 🌟 Agora trocados para TouchableOpacity e exibindo os contadores dinâmicos */}
+                    {}
                     <View style={styles.discardStatus}>
                         <TouchableOpacity 
                             style={[styles.totalDiscards, activeFilter === 'todos' && { borderWidth: 2, borderColor: '#6366F1' }]}
