@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform, Image, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { useState, useEffect } from "react";
 import * as ImagePicker from 'expo-image-picker'
 import { useDiscard } from "@/contexts/DiscardContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,6 +33,17 @@ export default function Manual() {
     const [images, setImages] = useState<string[]>([]);
     const [isUploading, setIsUploading] = useState(false); // Estado para loading do botão
 
+    // Quando os dados forem preenchidos pela IA
+    const veioDaIA = !!data.itemName || !!data.category;
+
+    // Só limpa o formulário se NÃO vier da IA
+    useEffect(() => {
+        if (!veioDaIA) {
+            updateData({ itemName: '', category: '', observations: '' });
+            setImages([]);
+        }
+    }, []);
+    
     useFocusEffect(
         useCallback(() => {
             updateData({
@@ -182,6 +193,16 @@ export default function Manual() {
 
                         <Text style={styles.headerTitle}>Registrar item</Text>
                     </View>
+
+                    {/* Banner informativo quando veio da IA */}
+                    {veioDaIA && (
+                        <View style={styles.iaBanner}>
+                            <Ionicons name="sparkles-outline" size={18} color="#7C3AED" />
+                            <Text style={styles.iaBannerText}>
+                                Campos preenchidos automaticamente pela IA. Corrija se necessário.
+                            </Text>
+                        </View>
+                    )}
 
                     <Text style={styles.title}>Informaçōes do item</Text>
                     <Text style={styles.subTitle}>Preencha os dados do item que será descartado</Text>
@@ -447,5 +468,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 10,
+    },
+    iaBanner: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        gap: 8, 
+        backgroundColor: '#EDE9FE',
+        borderRadius: 12, padding: 12, 
+        marginBottom: 16
+    },
+    iaBannerText: { 
+        flex: 1, 
+        fontSize: 13, 
+        color: '#7C3AED', 
+        lineHeight: 18
     },
 })
