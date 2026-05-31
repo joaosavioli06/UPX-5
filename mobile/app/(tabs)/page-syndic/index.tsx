@@ -1,78 +1,137 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { useEffect } from 'react';
 import { useAuth } from "@/contexts/AuthContext";
 import SyndicDiscardCard from "@/components/syndicDiscardCard";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Mock temporário — substituir por dados reais futuramente
-const MOCK_PENDENTES = 1;
-const MOCK_DESCARTES: DiscardItem[] = [
-    {
-        id: 1,
-        nomeMorador: "Maria Santos",
-        unit: "Bloco B - Apto 202",
-        date: "19/04/2026",
-        status: "Pendente",
-    },
-    {
-        id: 2,
-        nomeMorador: "João da Silva",
-        unit: "Bloco A - Apto 101",
-        date: "18/04/2026",
-        status: "Aprovado",
-    },
-    {
-        id: 3,
-        nomeMorador: "Carlos Oliveira",
-        unit: "Bloco C - Apto 305",
-        date: "17/04/2026",
-        status: "Recusado",
-    },
-];
-
-type AbaType = "todos" | "pendentes" | "aprovados" | "recusados";
-
-type StatusType = "Pendente" | "Aprovado" | "Recusado";
-
-interface DiscardItem {
-    id: number;
-    nomeMorador: string;
-    unit: string;
-    date: string;
-    status: StatusType;
+interface ColetaItem {
+    id_item: string;
+    nome_item: string;
+    descricao?: string;
+    tipo_material: string;
+    status: 'pendente' | 'validado' | 'coletado' | 'recusado';
+    nome_morador: string;
+    unidade_morador: string;
+    criado_em?: string;
 }
+
+type AbaType = "todos" | "pendente" | "coletado" | "recusado";
 
 export default function Sindico() {
     const { signOut } = useAuth();
-
     const router = useRouter();
+
+    const [allColetas, setAllColetas] = useState<ColetaItem[]>([]);
+    const [filteredColetas, setFilteredColetas] = useState<ColetaItem[]>([]);
     const [abaSelecionada, setAbaSelecionada] = useState<AbaType>("todos");
+    const [loading, setLoading] = useState(true);
 
     const abas: { key: AbaType; label: string }[] = [
-        { key: "todos", label: "Todos" },
-        { key: "pendentes", label: "Pendentes" },
-        { key: "aprovados", label: "Aprovados" },
-        { key: "recusados", label: "Recusados" },
-    ];
+    { key: "todos", label: "Todos" },
+    { key: "pendente", label: "Pendente" },
+    { key: "coletado", label: "Coletado" }, // Mudou aqui!
+    { key: "recusado", label: "Recusado" },
+];
 
-    const descartesFiltrados = MOCK_DESCARTES.filter((item) => {
-        if (abaSelecionada === "todos") {
+    // 📡 Busca as coletas/descartes no back-end (GET)
+    async function fetchPendentes() {
+    try {
+        setLoading(true);
+        const token = await AsyncStorage.getItem('@TokenFlow:token');
+        
+        // 🌟 CORREÇÃO AQUI: Mudado de 'itens' para 'admin' para bater com o index.js da API
+        const response = await fetch("https://api-c5avejvdoq-uc.a.run.app/api/admin/pendentes", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setAllColetas(data);
+        } else {
+            console.error("❌ [Síndico] Erro ao buscar coletas pendentes:", data);
+        }
+    } catch (error) {
+        console.error("🚨 [Síndico] Falha crítica de conexão de rede:", error);
+    } finally {
+        setLoading(false);
+    }
+}
+
+    // ⚡ Altera o status da coleta em tempo real via PATCH
+    async function handleUpdateStatus(itemId: string, novoStatus: 'coletado' | 'pendente' | 'recusado') {
+        try {
+            const token = await AsyncStorage.getItem('@TokenFlow:token');
+            
+            // 🌟 CORREÇÕES CRÍTICAS AQUI: 
+            // 1. Mudado o prefixo de 'itens' para 'admin' para sincronizar com as rotas do backend.
+            // 2. Mudado o método de 'PATCH' para 'PUT' para bater com o padrão do Express.
+            const response = await fetch(`https://api-c5avejvdoq-uc.a.run.app/api/admin/validar/${itemId}`, {
+                method: "PUT", 
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: novoStatus })
+            });
+
+            // Captura o texto bruto antes de tentar dar o parse para evitar o crash de HTML
+            const responseText = await response.text();
+
+            if (response.ok) {
+                // Se a resposta for um JSON válido de sucesso
+                const data = JSON.parse(responseText);
+                Alert.alert("Sucesso", `O status do descarte foi alterado para: ${novoStatus}.`);
+                fetchPendentes(); // Recarrega a lista sincronizada com o banco
+            } else {
+                // Interceptador caso o servidor devolva uma página HTML de erro
+                console.log("==================================================");
+                console.log(`❌ [BACKEND ERRO] Status Code: ${response.status}`);
+                if (responseText.includes("<!DOCTYPE") || responseText.includes("<html")) {
+                    console.log("🚨 O Servidor quebrou ou a rota não existe e retornou HTML!");
+                    console.log("🔍 Prévia do erro do servidor:\n", responseText.substring(0, 300));
+                    Alert.alert("Erro no Servidor", `O servidor respondeu com erro técnico (${response.status}).`);
+                } else {
+                    const errData = JSON.parse(responseText);
+                    console.log("📌 Dados do erro:", errData);
+                    Alert.alert("Erro", errData.error || "Não foi possível atualizar o status.");
+                }
+                console.log("==================================================");
+            }
+        } catch (error: any) {
+            console.error("🚨 Falha de rede ao atualizar status da coleta:", error);
+            Alert.alert("Erro de Conexão", "Não foi possível se comunicar com o servidor.");
+        }
+    }
+
+    // Gatilho inicial do ciclo de vida
+    useEffect(() => {
+        fetchPendentes();
+    }, []);
+
+    // Filtragem local reativa com tratamento defensivo de strings minúsculas
+    useEffect(() => {
+    setFilteredColetas(
+        allColetas.filter((item) => {
+            const statusFormatado = item.status?.toLowerCase();
+            if (abaSelecionada === "todos") return true;
+            if (abaSelecionada === "pendente") return statusFormatado === "pendente";
+            if (abaSelecionada === "coletado") return statusFormatado === "coletado"; // Mudou aqui!
+            if (abaSelecionada === "recusado") return statusFormatado === "recusado"; // Mudou aqui!
             return true;
-        }
+            })
+        );
+    }, [abaSelecionada, allColetas]);
 
-        if (abaSelecionada === "pendentes") {
-            return item.status === "Pendente";
-        }
-
-        if (abaSelecionada === "aprovados") {
-            return item.status === "Aprovado";
-        }
-
-        if (abaSelecionada === "recusados") {
-            return item.status === "Recusado";
-        }
-    })
+    // Contador em tempo real dinâmico para o card superior verde
+    const pendingCount = allColetas.filter(item => item.status?.toLowerCase() === 'pendente').length;
 
     async function handleLogout() {
         await signOut();
@@ -87,10 +146,7 @@ export default function Sindico() {
         >
             <View style={styles.header}>
                 <View style={styles.headerTop}>
-                    <TouchableOpacity
-                        onPress={handleLogout}
-                        style={styles.backButton}
-                    >
+                    <TouchableOpacity onPress={handleLogout} style={styles.backButton}>
                         <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
                     </TouchableOpacity>
 
@@ -102,7 +158,7 @@ export default function Sindico() {
                 <View style={styles.pendentesCard}>
                     <View>
                         <Text style={styles.pendentesLabel}>Cadastros pendentes</Text>
-                        <Text style={styles.pendentesCount}>{MOCK_PENDENTES}</Text>
+                        <Text style={styles.pendentesCount}>{pendingCount}</Text>
                     </View>
 
                     <View style={styles.pendentesIconContainer}>
@@ -129,7 +185,7 @@ export default function Sindico() {
                         <Text
                             style={[
                                 styles.abaText,
-                                abaSelecionada === aba.key && styles.abaTextActive,
+                                abaSelecionada === aba.key && styles.abaButtonActive && styles.abaTextActive,
                             ]}
                         >
                             {aba.label}
@@ -139,17 +195,22 @@ export default function Sindico() {
             </ScrollView>
 
             <View style={styles.listaContainer}>
-                {descartesFiltrados.length > 0 ? (
-                    descartesFiltrados.map((item) => (
+                {loading ? (
+                    <View style={{ marginTop: 40, alignItems: 'center' }}>
+                        <ActivityIndicator size="large" color="#00A63E" />
+                        <Text style={{ marginTop: 10, color: '#6B7280' }}>Carregando dados do servidor...</Text>
+                    </View>
+                ) : filteredColetas.length > 0 ? (
+                    filteredColetas.map((item) => (
                         <SyndicDiscardCard
-                            key={item.id}
-                            nomeMorador={item.nomeMorador}
-                            unit={item.unit}
-                            date={item.date}
-                            status={item.status}
-                            onApprove={() => console.log("Aprovado")}
-                            onReject={() => console.log("Recusado")}
-                            onDetails={() => console.log("Detalhes")}
+                            key={item.id_item}
+                            nomeMorador={`${item.nome_morador} • (${item.nome_item})`}
+                            unit={item.unidade_morador}
+                            date={item.criado_em ? new Date(item.criado_em).toLocaleDateString('pt-BR') : "Sem data"}
+                            status={item.status === 'recusado' ? 'Recusado' : item.status === 'coletado' || item.status === 'validado' ? 'Aprovado' : 'Pendente'}
+                            onApprove={() => handleUpdateStatus(item.id_item, 'coletado')}
+                            onReject={() => handleUpdateStatus(item.id_item, 'recusado')}
+                            onDetails={() => console.log("Detalhes:", item.id_item)}
                         />
                     ))
                 ) : (

@@ -64,6 +64,14 @@ const cadastrarUsuario = async (nome, email, password, tipo_perfil, codigoAcesso
 
     await admin.auth().setCustomUserClaims(userRecord.uid, { role: tipo_perfil, admin: isAdmin });
 
+    await admin.firestore().collection('movimentacoes_log').add({
+      acao: 'CADASTRO_USUARIO',
+      usuario_id: userRecord.uid, // ID gerado pelo Firebase Auth
+      username: nome, // nome criado no cadastro
+      item_id: "",                // Vazio pois não é um descarte
+      data_hora: admin.firestore.FieldValue.serverTimestamp()
+    });
+
     return { uid: userRecord.uid, email: userRecord.email };
   } catch (error) {
     if (userRecord) await admin.auth().deleteUser(userRecord.uid);

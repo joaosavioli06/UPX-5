@@ -81,6 +81,13 @@ const excluirDescarte = async (req, res) => {
       return res.status(403).json({ error: 'Você não tem permissão para excluir este registro.' });
     }
 
+    await admin.firestore().collection('movimentacoes_log').add({
+      acao: 'EXCLUSAO_ITEM_DESCARTE',
+      usuario_id: uid_usuario, // ⬅️ Usa a constante que você já definiu na linha 70
+      item_id: id_item,         // ⬅️ Usa a constante que você já definiu na linha 69
+      data_hora: admin.firestore.FieldValue.serverTimestamp()
+    });
+
     await itemRef.delete();
     res.status(200).json({ message: 'Descarte removido do sistema com sucesso!' });
   } catch (error) {
@@ -89,5 +96,4 @@ const excluirDescarte = async (req, res) => {
   }
 };
 
-// 🌟 Exportamos apenas as funções puras de controle, sem o uploadConfig do multer
 module.exports = { registrarNovoItem, listarItensPorUsuario, excluirDescarte };

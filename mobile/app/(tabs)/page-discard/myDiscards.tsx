@@ -161,16 +161,27 @@ export default function MyDiscards() {
                     contentContainerStyle={styles.content}
                     showsVerticalScrollIndicator={false}
                 >
-                    <View style={styles.header}>
-                        <TouchableOpacity
-                            onPress={() => router.back()}
-                            style={styles.backButton}
-                        >
-                            <Ionicons name="arrow-back" size={24} color="#111827" />
-                        </TouchableOpacity>
+                <View style={[styles.header, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        style={styles.backButton}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#111827" />
+                    </TouchableOpacity>
 
-                        <Text style={styles.headerTitle}>Meus Descartes</Text>
-                    </View>
+                    <Text style={styles.headerTitle}>Meus Descartes</Text>
+                </View>
+
+                {/* 🔄 O Botão Mágico de Atualização */}
+                <TouchableOpacity 
+                    onPress={() => fetchMyDiscards()} 
+                    style={{ padding: 4 }}
+                    activeOpacity={0.7}
+                >
+                    <Ionicons name="refresh" size={24} color="#6366F1" />
+                </TouchableOpacity>
+            </View>
 
                     {}
                     <View style={styles.discardStatus}>

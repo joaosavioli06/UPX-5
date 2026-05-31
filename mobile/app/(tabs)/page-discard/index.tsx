@@ -15,13 +15,13 @@ export default function Home() {
   );
 }
 
-  const shortName = user?.nome
-    ?.split(' ')
-    .filter(Boolean);
-
-  const displayName = shortName
-    ? `${shortName[0]} ${shortName[shortName.length - 1]}`
-    : 'Morador';
+  const displayName = (() => {
+    if (!user || !user.nome) return 'Morador';
+    const parts = user.nome.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'Morador';
+    if (parts.length === 1) return parts[0];
+    return `${parts[0]} ${parts[parts.length - 1]}`;
+  })();
 
   async function handleLogout() {
     await signOut();
@@ -39,7 +39,7 @@ export default function Home() {
 
         <View style={styles.headerTop}>
           <View>
-            <Text style={styles.title}>Bem-vindo(a),</Text>
+            <Text style={styles.title}>Bem-vindo(a), {displayName}</Text>
 
             <Text style={styles.name}>
               {displayName}
